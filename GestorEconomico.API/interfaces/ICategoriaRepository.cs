@@ -1,7 +1,6 @@
+using GestorEconomico.API.Models;
 
-using GestorEconomico.Models;
-
-namespace GestorEconomico.interfaces
+namespace GestorEconomico.API.Interfaces
 {
     public interface ICategoriaRepository
     {

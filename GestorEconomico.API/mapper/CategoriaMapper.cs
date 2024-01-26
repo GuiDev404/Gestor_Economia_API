@@ -1,11 +1,8 @@
 using GestorEconomico.API.DTOs;
-using GestorEconomico.DTOs;
-using GestorEconomico.interfaces;
-using GestorEconomico.Models;
-using GestorEconomico.Utils;
-using Riok.Mapperly.Abstractions;
+using GestorEconomico.API.Interfaces;
+using GestorEconomico.API.Models;
 
-namespace GestorEconomico.Mapper
+namespace GestorEconomico.API.Mapper
 {
     public class CategoriaMapper : ICategoriaMapper
     {

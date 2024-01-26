@@ -1,7 +1,7 @@
-using GestorEconomico.DTOs;
-using GestorEconomico.Models;
+using GestorEconomico.API.DTOs;
+using GestorEconomico.API.Models;
 
-namespace GestorEconomico.interfaces {
+namespace GestorEconomico.API.Interfaces {
   public interface ICategoriaMapper
   {
       IEnumerable<CategoriaDTO> Map(IEnumerable<Categoria> source);

@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using GestorEconomico.Intefaces;
-using GestorEconomico.Utils;
+using GestorEconomico.API.Utils;
 
 namespace GestorEconomico.API.DTOs
 {

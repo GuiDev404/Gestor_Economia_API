@@ -1,6 +1,4 @@
-using GestorEconomico.Intefaces;
-
-namespace PromiedosAPI.Helpers;
+namespace GestorEconomico.API.Utils;
 
 public static class ConvertFormFile
 {

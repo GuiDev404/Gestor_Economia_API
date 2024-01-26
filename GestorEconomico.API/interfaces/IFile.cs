@@ -1,4 +1,4 @@
-namespace GestorEconomico.Intefaces
+namespace GestorEconomico.API.Interfaces
 {
     public interface IFile
     {

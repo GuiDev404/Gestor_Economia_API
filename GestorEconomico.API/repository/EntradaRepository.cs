@@ -1,9 +1,9 @@
-using GestorEconomico.Data;
-using GestorEconomico.interfaces;
-using GestorEconomico.Models;
+using GestorEconomico.API.Data;
+using GestorEconomico.API.Interfaces;
+using GestorEconomico.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestorEconomico.API.repository
+namespace GestorEconomico.API.Repository
 {
     public class EntradaRepository : IEntradaRepository
     {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestorEconomico.DTOs
+namespace GestorEconomico.API.DTOs
 {
     public class CategoriaDTO
     {

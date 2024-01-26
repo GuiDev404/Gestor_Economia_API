@@ -1,4 +1,4 @@
-namespace GestorEconomico.Utils {
+namespace GestorEconomico.API.Utils {
   public static class Const {
     public static readonly string[] MIME_TYPES = new string[]{ 
         "image/jpeg",

@@ -1,16 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using GestorEconomico.Models;
-using GestorEconomico.DTOs;
-using GestorEconomico.Mapper;
-using GestorEconomico.Data;
-using GestorEconomico.interfaces;
-using Microsoft.AspNetCore.Components.Web;
+using GestorEconomico.API.Models;
+using GestorEconomico.API.DTOs;
+using GestorEconomico.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
-namespace GestorEconomico.controllers
+namespace GestorEconomico.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class CategoriaController : ControllerBase
     {
         private readonly ICategoriaRepository _categoriaRepository;
@@ -24,6 +21,7 @@ namespace GestorEconomico.controllers
 
         // GET: api/Categoria
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CategoriaDTO>))]
         public async Task<ActionResult> GetCategoria([FromQuery] string? search)
         {
@@ -35,6 +33,7 @@ namespace GestorEconomico.controllers
 
         // GET: api/Categoria/5
         [HttpGet("{id}")]
+        [Authorize]
         [ProducesResponseType(200, Type = typeof(CategoriaDTO))]
         public async Task<ActionResult> GetCategoria(int id)
         {
@@ -53,6 +52,7 @@ namespace GestorEconomico.controllers
 
         // PUT: api/Categoria/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -94,6 +94,7 @@ namespace GestorEconomico.controllers
 
         // POST: api/Categoria
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(201, Type = typeof(CategoriaDTO))]
         [ProducesResponseType(409, Type = typeof(ProblemDetails))]
         public async Task<ActionResult> PostCategoria(CategoriaCreateDTO categoria)
@@ -128,6 +129,7 @@ namespace GestorEconomico.controllers
 
         // DELETE: api/Categoria/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]

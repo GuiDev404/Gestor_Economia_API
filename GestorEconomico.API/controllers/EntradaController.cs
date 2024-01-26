@@ -1,12 +1,10 @@
 using GestorEconomico.API.DTOs;
-using GestorEconomico.interfaces;
-using GestorEconomico.Mapper;
-using GestorEconomico.Models;
-using GestorEconomico.Utils;
+using GestorEconomico.API.Interfaces;
+using GestorEconomico.API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PromiedosAPI.Helpers;
 
-namespace GestorEconomico.controllers
+namespace GestorEconomico.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -23,6 +21,7 @@ namespace GestorEconomico.controllers
 
         // GET: api/Entrada
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(200, Type = typeof(IEnumerable<EntradaDTO>))]
         public async Task<ActionResult<IEnumerable<EntradaDTO>>> GetEntradas()
         {
@@ -34,6 +33,7 @@ namespace GestorEconomico.controllers
 
         // GET: api/Entrada/5
         [HttpGet("{id}")]
+        [Authorize]
         [ProducesResponseType(200, Type = typeof(EntradaDTO))]
         public async Task<ActionResult<EntradaDTO>> GetEntrada(int id)
         {
@@ -51,6 +51,7 @@ namespace GestorEconomico.controllers
 
         // POST: api/Entrada
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(201, Type = typeof(EntradaDTO))]
         [ProducesResponseType(409, Type = typeof(ProblemDetails))]
         public async Task<ActionResult<EntradaDTO>> PostEntrada([FromForm] EntradaCreateDTO nuevaEntradaDTO)
@@ -81,6 +82,7 @@ namespace GestorEconomico.controllers
 
         // PUT: api/Categoria/5
         [HttpPut("{id}")]
+        [Authorize]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -117,6 +119,7 @@ namespace GestorEconomico.controllers
 
         // DELETE: api/Categoria/5
         [HttpDelete("{id}")]
+        [Authorize]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]

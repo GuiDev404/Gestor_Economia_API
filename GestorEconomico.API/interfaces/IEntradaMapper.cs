@@ -1,8 +1,7 @@
 using GestorEconomico.API.DTOs;
-using GestorEconomico.Intefaces;
-using GestorEconomico.Models;
+using GestorEconomico.API.Models;
 
-namespace GestorEconomico.interfaces {
+namespace GestorEconomico.API.Interfaces {
   public interface IEntradaMapper
   {
     IEnumerable<EntradaDTO> Map(IEnumerable<Entrada> source);

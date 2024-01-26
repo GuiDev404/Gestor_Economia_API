@@ -1,9 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using GestorEconomico.Intefaces;
-using GestorEconomico.Utils;
+using GestorEconomico.API.Utils;
 
-namespace GestorEconomico.Models
+namespace GestorEconomico.API.Models
 {
   public class Entrada
   {

@@ -1,12 +1,9 @@
 using GestorEconomico.API.DTOs;
-using GestorEconomico.Intefaces;
-using GestorEconomico.interfaces;
-using GestorEconomico.Models;
-using GestorEconomico.Utils;
-using PromiedosAPI.Helpers;
-using Riok.Mapperly.Abstractions;
+using GestorEconomico.API.Interfaces;
+using GestorEconomico.API.Models;
+using GestorEconomico.API.Utils;
 
-namespace GestorEconomico.Mapper
+namespace GestorEconomico.API.Mapper
 {
     public class EntradaMapper : IEntradaMapper {    
         private EntradaDTO EntradaToEntradaDTO (Entrada entrada){

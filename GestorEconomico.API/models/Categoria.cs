@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestorEconomico.Models
+namespace GestorEconomico.API.Models
 {
   public class Categoria
   {

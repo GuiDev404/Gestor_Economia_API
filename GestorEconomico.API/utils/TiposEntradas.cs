@@ -1,4 +1,4 @@
-namespace GestorEconomico.Utils
+namespace GestorEconomico.API.Utils
 {
   public enum TiposEntradas
   {
