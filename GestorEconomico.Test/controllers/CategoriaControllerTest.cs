@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using FakeItEasy;
 using FluentAssertions;
-using GestorEconomico.controllers;
-using GestorEconomico.DTOs;
-using GestorEconomico.interfaces;
-using GestorEconomico.Mapper;
-using GestorEconomico.Models;
+using GestorEconomico.API.Controllers;
+using GestorEconomico.API.DTOs;
+using GestorEconomico.API.Interfaces;
+using GestorEconomico.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
