@@ -1,6 +1,7 @@
 using GestorEconomico.API.DTOs;
 using GestorEconomico.API.Interfaces;
 using GestorEconomico.API.Models;
+using GestorEconomico.API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,9 +24,9 @@ namespace GestorEconomico.API.Controllers
         [HttpGet]
         [Authorize]
         [ProducesResponseType(200, Type = typeof(IEnumerable<EntradaDTO>))]
-        public async Task<ActionResult<IEnumerable<EntradaDTO>>> GetEntradas()
+        public async Task<ActionResult<IEnumerable<EntradaDTO>>> GetEntradas([FromQuery] QueryObject query)
         {
-            IEnumerable<Entrada> entradas = await _entradaRepository.GetEntradas();
+            IEnumerable<Entrada> entradas = await _entradaRepository.GetEntradas(query);
             IEnumerable<EntradaDTO> entradasDTO = _mapper.Map(entradas);
 
             return Ok(entradasDTO);
@@ -56,7 +57,8 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(409, Type = typeof(ProblemDetails))]
         public async Task<ActionResult<EntradaDTO>> PostEntrada([FromForm] EntradaCreateDTO nuevaEntradaDTO)
         {
-            var entradas = await _entradaRepository.GetEntradas();
+            var queryObject = new QueryObject();
+            var entradas = await _entradaRepository.GetEntradas(queryObject);
             Entrada? entradaExistente = entradas
                 .Where(c => c.Descripcion.Trim().ToUpper() == nuevaEntradaDTO.Descripcion.Trim().ToUpper())
                 .FirstOrDefault();

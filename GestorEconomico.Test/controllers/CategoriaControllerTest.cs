@@ -5,10 +5,9 @@ using GestorEconomico.API.Controllers;
 using GestorEconomico.API.DTOs;
 using GestorEconomico.API.Interfaces;
 using GestorEconomico.API.Models;
+using GestorEconomico.API.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
-
-// https://github.com/teddysmithdev/pokemon-review-api/blob/master/PokemonReviewApp.Tests/Controller/PokemonControllerTests.cs
 
 namespace GestorEconomico.Test;
 
@@ -34,7 +33,7 @@ public class CategoriaControllerTest
         var controller = new CategoriaController(_categoriaRepository, _mapper);
         
         //Act
-        var result = await controller.GetCategoria("");
+        var result = await controller.GetCategorias(new QueryObject());
 
         //Assert
         result.Should().NotBeNull();
@@ -51,7 +50,7 @@ public class CategoriaControllerTest
         var categoriaCreateDTO = A.Fake<CategoriaCreateDTO>();
         var categoria = A.Fake<Categoria>();
         var categoriaDTO = A.Fake<CategoriaDTO>();
-        A.CallTo(() => _categoriaRepository.GetCategorias("")).Returns(categorias);
+        A.CallTo(() => _categoriaRepository.GetCategorias(new QueryObject {})).Returns(categorias);
         A.CallTo(() => _mapper.Map(categoriaCreateDTO)).Returns(categoria);
         A.CallTo(() => _categoriaRepository.CreateCategoria(categoria)).Returns(true);
         A.CallTo(() => _mapper.Map(categoria)).Returns(categoriaDTO);

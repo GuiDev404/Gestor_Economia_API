@@ -1,6 +1,7 @@
 using GestorEconomico.API.Data;
 using GestorEconomico.API.Interfaces;
 using GestorEconomico.API.Models;
+using GestorEconomico.API.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestorEconomico.API.Repository
@@ -38,11 +39,29 @@ namespace GestorEconomico.API.Repository
                 .FirstOrDefaultAsync(e=> e.EntradaId == id);
         }
 
-        public async Task<IEnumerable<Entrada>> GetEntradas()
+        public async Task<IEnumerable<Entrada>> GetEntradas(QueryObject query)
         {
-            return await _context.Entradas
-                .Include(e=> e.Categoria)
-                .ToListAsync();
+            IQueryable<Entrada> entradas = _context.Entradas.Include(e=> e.Categoria).AsQueryable();
+
+            if(query.DateInit != null && query.DateEnd != null){
+                entradas = entradas.Where(e=> e.FechaInicio >= query.DateInit && e.FechaFin <= query.DateEnd);
+            }
+
+            if(query.SortBy != null){
+                if(query.SortBy.Equals("Monto", StringComparison.OrdinalIgnoreCase)){
+                    entradas = query.IsDescending 
+                        ? entradas.OrderByDescending(c=> c.Monto)
+                        : entradas.OrderBy(c=> c.Monto);
+                }
+            }
+
+            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+            var entradasList = entradas
+                .Skip(skipNumber)
+                .Take(query.PageSize)
+                .AsEnumerable();
+
+            return entradasList;
         }
 
         public async Task<bool> Save()

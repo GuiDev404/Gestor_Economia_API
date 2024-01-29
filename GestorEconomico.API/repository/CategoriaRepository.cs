@@ -1,6 +1,7 @@
 using GestorEconomico.API.Data;
 using GestorEconomico.API.Interfaces;
 using GestorEconomico.API.Models;
+using GestorEconomico.API.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestorEconomico.API.Repository
@@ -30,16 +31,20 @@ namespace GestorEconomico.API.Repository
                 categoria.Eliminada = false;
                 return await Save();
             } else {
-                IEnumerable<Entrada> entradas = await _entradaRepository.GetEntradas();
-                Entrada? existeEnEntrada = entradas
-                    .FirstOrDefault(entrada=> entrada.CategoriaId == categoria.CategoriaId);
+                bool existeEnEntrada = await ExistCategoriaInEntrada(categoria.CategoriaId);
                 
-                if(existeEnEntrada != null) return false;
+                if(existeEnEntrada) return false;
 
                 categoria.Eliminada = true;
                 return await Save();
             }
 
+        }
+
+        public Task<bool> ExistCategoriaInEntrada (int idCategory){
+            var entradas =  _context.Entradas.ToList();
+            bool existeEnEntrada = entradas.Any(entrada=> entrada.CategoriaId == idCategory);
+            return Task.FromResult(existeEnEntrada);
         }
 
         public async Task<bool> ExistCategoria(int id)
@@ -52,12 +57,16 @@ namespace GestorEconomico.API.Repository
             return await _context.Categorias.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Categoria>> GetCategorias(string? search)
+        public async Task<IEnumerable<Categoria>> GetCategorias(QueryObject query)
         {
             IQueryable<Categoria> categorias = _context.Categorias;
 
-            if(!string.IsNullOrEmpty(search)){
-                categorias = categorias.Where(c=> c.Nombre.Trim().ToLower().Contains(search.Trim().ToLower()));
+            if(query.SortBy != null){
+                if(query.SortBy.Equals("Nombre", StringComparison.OrdinalIgnoreCase)){
+                    categorias = query.IsDescending     
+                        ? categorias.OrderByDescending(c=> c.Nombre)
+                        : categorias.OrderBy(c=> c.Nombre);
+                }
             }
 
             return await categorias.ToListAsync();

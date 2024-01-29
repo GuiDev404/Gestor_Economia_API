@@ -46,6 +46,14 @@ namespace GestorEconomico.API.Repository
             return user;
         }
 
+        public async Task<ApplicationUser> GetUserByRefreshToken(string refreshToken)
+        {
+            ApplicationUser? user = await _context.Users
+                .FirstOrDefaultAsync(user=> user.RefreshToken == refreshToken);
+           
+            return user;
+        }
+
         public async  Task<bool> IsCorrectPassword (ApplicationUser usuario, string password)
         {
             return await _userManager.CheckPasswordAsync(usuario, password);
@@ -76,27 +84,25 @@ namespace GestorEconomico.API.Repository
             return null;
         }
 
-        public async Task<ApplicationUser> GetUserByRefreshToken(string refreshToken)
+        public async Task<dynamic> CreationTokens(UsuarioRolesDTO usuarioConRol)
         {
-            ApplicationUser? user = await _context.Users.FirstOrDefaultAsync(user=> user.RefreshToken == refreshToken);
-           
-            return user;
+            var accessToken = _tokenServices.CreateAccessToken(usuarioConRol);
+            var refreshToken = _tokenServices.CreateRefreshToken();
+
+            usuarioConRol.Usuario.RefreshToken = refreshToken;
+            bool result = await Save();
+            return new {
+                savedSuccess = result,
+                accessToken,
+                refreshToken,
+            };
         }
 
-        public Task<ApplicationUser> Login(string email, string password)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> RefreshToken(TokensDTO tokens)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> Register(string email, string password, string rol)
+        public async Task<bool> CreateUser(string email, string password, string rol)
         {
             var user = new ApplicationUser { 
-                Email = email
+                Email = email,
+                UserName = email
             };
 
             try {
@@ -106,7 +112,7 @@ namespace GestorEconomico.API.Repository
                 await Save();
                 
                 return result.Succeeded;
-            } catch (Exception) {
+            } catch (Exception ex) {
                 
                 return false;
             }

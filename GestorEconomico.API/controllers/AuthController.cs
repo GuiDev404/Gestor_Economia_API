@@ -42,24 +42,32 @@ namespace GestorEconomico.API.Controllers
         }
 
         [HttpPost("Register")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult> Register (RegisterUserDTO registerUserDTO){
             string USUARIO_ROLE_NAME = "Usuario";
             IdentityRole role = await _authRepository.GetRoleByName(USUARIO_ROLE_NAME);
             
             if(role == null) return BadRequest("Rol faltante comuniquese con el administrador!");
 
-            bool alreadyExist = await _authRepository.ExistUser(registerUserDTO.Correo);
+            bool existUser = await _authRepository.ExistUser(registerUserDTO.Correo);
 
-            if (alreadyExist) {
+            // validaciones de correo, y contraseña, confirmar contraseña
+
+            if (!existUser) {
                 bool resultado = await _authRepository
-                    .Register(registerUserDTO.Correo, registerUserDTO.Contraseña, USUARIO_ROLE_NAME);
+                    .CreateUser(registerUserDTO.Correo, registerUserDTO.Contraseña, role.Name);
             
                 return resultado 
                     ? Created("", "Usuario creado correctamente")
                     : BadRequest("Lo sentimos no se pudo crear el usuario");
             } else {
                 ModelState
-                    .AddModelError("Resumen", "Lo sentimos ya existe un usuario con ese correo o nombre de usuario"); 
+                    .AddModelError(
+                        "Resumen",
+                        "Lo sentimos ya existe un usuario con ese correo o nombre de usuario"
+                    ); 
                 return Conflict(ModelState);
             }
         }
@@ -80,15 +88,16 @@ namespace GestorEconomico.API.Controllers
                 Roles = roles
             };
 
-            var accessToken = _tokenServices.CreateAccessToken(usuarioConRol);
-            var refreshToken = _tokenServices.CreateRefreshToken();
+            var creationTokensResult = await _authRepository.CreationTokens(usuarioConRol);
 
-            usuario.RefreshToken = refreshToken;
-            await _authRepository.Save();
+            if(!creationTokensResult.savedSuccess) {
+                ModelState.AddModelError("", "Algo salio mal actualizando la categoria");
+                return StatusCode(500, ModelState);
+            } 
 
             var response = new {
-                accessToken,
-                refreshToken,
+                creationTokensResult.accessToken,
+                creationTokensResult.refreshToken,
                 rol = usuarioConRol.Roles[0],
                 userId = usuarioConRol.Usuario.Id
             };
@@ -112,14 +121,14 @@ namespace GestorEconomico.API.Controllers
                 Roles = roles
             };
 
-            var accessToken = _tokenServices.CreateAccessToken(usuarioConRol);
-            var newRefreshToken = _tokenServices.CreateRefreshToken();
+            var creationTokensResult = await _authRepository.CreationTokens(usuarioConRol);
 
-            // Actualizar el nuevo refreshToken en la base de datos
-            usuario.RefreshToken = newRefreshToken;
-            await _authRepository.Save();
+            if(!creationTokensResult.savedSuccess) {
+                ModelState.AddModelError("", "Algo salio mal actualizando la categoria");
+                return StatusCode(500, ModelState);
+            } 
 
-            return Ok(new { accessToken, refreshToken = newRefreshToken });
+            return Ok(new { creationTokensResult.accessToken, creationTokensResult.refreshToken });
         }
         }
 

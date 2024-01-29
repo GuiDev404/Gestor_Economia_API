@@ -3,6 +3,7 @@ using GestorEconomico.API.Models;
 using GestorEconomico.API.DTOs;
 using GestorEconomico.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using GestorEconomico.API.Utils;
 
 namespace GestorEconomico.API.Controllers
 {
@@ -23,9 +24,9 @@ namespace GestorEconomico.API.Controllers
         [HttpGet]
         [Authorize]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CategoriaDTO>))]
-        public async Task<ActionResult> GetCategoria([FromQuery] string? search)
+        public async Task<ActionResult> GetCategorias([FromQuery] QueryObject query)
         {
-            IEnumerable<Categoria> categorias = await _categoriaRepository.GetCategorias(search);
+            IEnumerable<Categoria> categorias = await _categoriaRepository.GetCategorias(query);
             IEnumerable<CategoriaDTO> categoriasDTO = _mapper.Map(categorias);
 
             return Ok(categoriasDTO);
@@ -35,8 +36,10 @@ namespace GestorEconomico.API.Controllers
         [HttpGet("{id}")]
         [Authorize]
         [ProducesResponseType(200, Type = typeof(CategoriaDTO))]
+        [ProducesResponseType(400)]
         public async Task<ActionResult> GetCategoria(int id)
         {
+            // esto o podria hacer llamar ExistCategoria(id)
             var categoria = await _categoriaRepository.GetCategoriaById(id);
 
             if (categoria == null) {
@@ -99,7 +102,8 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(409, Type = typeof(ProblemDetails))]
         public async Task<ActionResult> PostCategoria(CategoriaCreateDTO categoria)
         {
-            var categorias = await _categoriaRepository.GetCategorias();
+            var queryParams = new QueryObject();
+            var categorias = await _categoriaRepository.GetCategorias(queryParams);
             Categoria? categoriaExistente = categorias
                 .Where(c => c.Nombre.Trim().ToUpper() == categoria.Nombre.Trim().ToUpper())
                 .FirstOrDefault();
