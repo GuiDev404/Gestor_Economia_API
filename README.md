@@ -1,3 +1,3 @@
-# GESTOR ECONOMIA CASERA
+# Gestor I/E
 
-Rest API, para llevar los egresos e ingresos
+App que permite llevar un control de los egresos e ingresos
