@@ -44,19 +44,19 @@ namespace GestorEconomico.API.Repository
 
         public async Task<bool> ExistCuentaInEntrada(int idCuenta)
         {
-            bool existeEnEntrada = await _context.Entradas.AnyAsync(entrada=> entrada.CategoriaId == idCuenta);
+            bool existeEnEntrada = await _context.Entradas.AnyAsync(entrada=> entrada.CuentaId == idCuenta);
             return existeEnEntrada;
         }
 
         public async Task<bool> ExistCuenta(int id, string? userId)
         {
-            if(userId == null) return false;
+            if(string.IsNullOrEmpty(userId)) return false;
 
-            var usuarioActual = await _userManager.FindByIdAsync(userId);
-            if(usuarioActual == null) return false;
+            // var usuarioActual = await _userManager.FindByIdAsync(userId);
+            // if(usuarioActual == null) return false;
 
-            return await _context.Categorias
-                .AnyAsync(c=> c.CategoriaId == id && c.UsuarioID == usuarioActual.Id);
+            return await _context.Cuentas
+                .AnyAsync(c=> c.CuentaId == id && c.UsuarioID == userId);
         }
 
         public async Task<Cuenta?> GetCuentaById(int id)
@@ -83,7 +83,7 @@ namespace GestorEconomico.API.Repository
         public async Task<IEnumerable<Entrada>?> GetEntradasByCuentas(int idCuenta, string? userId)
         {
             return _context.Entradas
-                .Where(e=> e.CategoriaId == idCuenta && (e.UsuarioID == userId || e.UsuarioID == ""))
+                .Where(e=> e.CuentaId == idCuenta && (e.UsuarioID == userId || e.UsuarioID == ""))
                 .AsEnumerable();
         }
 

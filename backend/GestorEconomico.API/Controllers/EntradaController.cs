@@ -122,22 +122,20 @@ namespace GestorEconomico.API.Controllers
         // DELETE: api/Categoria/5
         [HttpDelete("{id}")]
         [Authorize]
-        [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteCategoria(int id)
         {
             Entrada? entrada = await _entradaRepository.GetEntradaById(id);
             if (entrada == null) {
-                return NotFound(new ProblemDetails () {
-                    Title = "No se encontro esa entrada"
-                });
+                return NotFound(HandleErrors.SetContext("No se encontro esa entrada"));
             }
 
             bool deletedResult = await _entradaRepository.DeleteEntrada(entrada);
            
             if(!deletedResult){
                 ModelState.AddModelError("", "Algo salio mal eliminando la entrada");
+                return StatusCode(500, ModelState);
             }
 
             return NoContent();

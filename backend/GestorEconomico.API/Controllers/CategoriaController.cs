@@ -49,9 +49,7 @@ namespace GestorEconomico.API.Controllers
             var categoria = await _categoriaRepository.GetCategoriaById(id);
 
             if (categoria == null) {
-                return NotFound(new ProblemDetails {
-                    Title = "No se encontro la categoria"
-                });
+                return NotFound(HandleErrors.SetContext("No se encontro la categoria"));
             }
 
             CategoriaDTO categoriaDTO = _mapper.Map(categoria);
@@ -72,20 +70,16 @@ namespace GestorEconomico.API.Controllers
                 ModelState.AddModelError("", "Una categoria es requerida");
                 return BadRequest(ModelState);
             }
-
-            ProblemDetails notFound = new () {
-                Title = "No se encontro esa categoria"
-            };
             
             string? userId = GetCurrentUserId();
-            if (id != categoriaDTO.CategoriaId || userId == "" || userId == null)
+            if (id != categoriaDTO.CategoriaId || string.IsNullOrEmpty(userId))
             {
-                return BadRequest(notFound);
+                return BadRequest(HandleErrors.SetContext("No se encontro la categoria"));
             }
 
             Categoria? categoriaExistente = await _categoriaRepository.GetCategoriaById(id);
             if (categoriaExistente == null || categoriaExistente.UsuarioID != userId) {
-                return NotFound(notFound);
+                return NotFound(HandleErrors.SetContext("No se encontro la categoria"));
             }
   
             Categoria categoriasUpdated = _mapper.Map(categoriaExistente, categoriaDTO);
@@ -106,20 +100,20 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(409, Type = typeof(ProblemDetails))]
         public async Task<ActionResult> PostCategoria(CategoriaCreateDTO categoria)
         {
+            string? userId = GetCurrentUserId();
             var queryParams = new QueryObject();
-            var categorias = await _categoriaRepository.GetCategorias(queryParams, GetCurrentUserId());
+            var categorias = await _categoriaRepository.GetCategorias(queryParams, userId!);
+            
             Categoria? categoriaExistente = categorias
                 .Where(c => c.Nombre.Trim().ToUpper() == categoria.Nombre.Trim().ToUpper())
                 .FirstOrDefault();
 
             if(categoriaExistente != null)  {
-                return StatusCode(409, new ProblemDetails {
-                    Title = "Categoria existente"
-                });
+                return StatusCode(409, HandleErrors.SetContext("La categoria ya existe"));
             }
 
             Categoria nuevaCategoria = _mapper.Map(categoria); 
-            nuevaCategoria.UsuarioID = GetCurrentUserId();
+            nuevaCategoria.UsuarioID = userId!;
             bool createdResult = await _categoriaRepository
                 .CreateCategoria(nuevaCategoria);
             
@@ -161,6 +155,7 @@ namespace GestorEconomico.API.Controllers
            
             if(!deletedResult){
                 ModelState.AddModelError("", "Algo salio mal al eliminar la categoria");
+                return StatusCode(500, ModelState);
             }
 
             return NoContent();
