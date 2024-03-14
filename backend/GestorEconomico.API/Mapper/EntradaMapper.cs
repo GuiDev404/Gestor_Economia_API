@@ -19,7 +19,9 @@ namespace GestorEconomico.API.Mapper
                 FileType = entrada.FileType,
                 Eliminada = entrada.Eliminada,
                 CategoriaId = entrada.CategoriaId,
-                CategoriaNombre = entrada.Categoria.Nombre,
+                CuentaId = entrada.CuentaId,
+                CuentaNombre = entrada?.Cuenta?.Descripcion,
+                CategoriaNombre = entrada?.Categoria.Nombre,
             };
         }
     
@@ -33,6 +35,7 @@ namespace GestorEconomico.API.Mapper
 
             return new Entrada {
                 CategoriaId = dto.CategoriaId,
+                CuentaId = dto.CuentaId,
                 Descripcion = dto.Descripcion,
                 Monto = dto.Monto,
                 FechaInicio = dto.FechaInicio,

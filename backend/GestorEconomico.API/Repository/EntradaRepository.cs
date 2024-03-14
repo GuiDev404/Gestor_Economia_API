@@ -1,4 +1,5 @@
 using GestorEconomico.API.Data;
+using GestorEconomico.API.DTOs;
 using GestorEconomico.API.Interfaces;
 using GestorEconomico.API.Models;
 using GestorEconomico.API.Utils;
@@ -39,11 +40,14 @@ namespace GestorEconomico.API.Repository
                 .FirstOrDefaultAsync(e=> e.EntradaId == id);
         }
 
-        public async Task<IEnumerable<Entrada>> GetEntradas(QueryObject query)
+        public async Task<PaginationEntradasDTO<Entrada>> GetEntradas(QueryObject query, string? userId)
         {
-            IQueryable<Entrada> entradas = _context.Entradas.Include(e=> e.Categoria).AsQueryable();
+            IQueryable<Entrada> entradas = _context.Entradas
+                .Include(e=> e.Categoria)
+                .Include(e=> e.Cuenta)
+                .Where(e=> e.UsuarioID == userId);
 
-            if(query.DateInit != null && query.DateEnd != null){
+            if(query.DateInit != default && query.DateInit != null && query.DateEnd != null && query.DateEnd != default){
                 entradas = entradas.Where(e=> e.FechaInicio >= query.DateInit && e.FechaFin <= query.DateEnd);
             }
 
@@ -55,13 +59,21 @@ namespace GestorEconomico.API.Repository
                 }
             }
 
-            var skipNumber = (query.PageNumber - 1) * query.PageSize;
-            var entradasList = entradas
+            var page = query.PageNumber - 1;
+            var skipNumber = page * query.PageSize;
+            var entradasList = await entradas
                 .Skip(skipNumber)
                 .Take(query.PageSize)
-                .AsEnumerable();
+                .ToListAsync();
 
-            return entradasList;
+            decimal limit = entradasList.Count == 0 ? 1 : Convert.ToDecimal(entradasList.Count) / query.PageSize;
+
+            return new PaginationEntradasDTO<Entrada> {
+                Page = query.PageNumber,
+                NextPage = query.PageNumber + 1,
+                LimitPages = Math.Ceiling(limit),
+                Results = entradasList
+            };
         }
 
         public async Task<bool> Save()

@@ -117,12 +117,12 @@ namespace GestorEconomico.API.Controllers
             bool createdResult = await _categoriaRepository
                 .CreateCategoria(nuevaCategoria);
             
-            CategoriaDTO nuevaCategoriaDTO = _mapper.Map(nuevaCategoria); 
-            
             if(!createdResult){
                 ModelState.AddModelError("", "Algo salio mal guardando la categoria");
                 return StatusCode(500, ModelState);
             }
+
+            CategoriaDTO nuevaCategoriaDTO = _mapper.Map(nuevaCategoria); 
 
             return CreatedAtAction(
                 nameof(GetCategoria),

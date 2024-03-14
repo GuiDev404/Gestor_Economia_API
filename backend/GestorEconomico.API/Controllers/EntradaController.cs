@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using GestorEconomico.API.DTOs;
 using GestorEconomico.API.Interfaces;
 using GestorEconomico.API.Models;
@@ -20,16 +21,28 @@ namespace GestorEconomico.API.Controllers
             _mapper = mapper;
         }
 
+        private string? GetCurrentUserId (){
+            string? userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
         // GET: api/Entrada
         [HttpGet]
         [Authorize]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<EntradaDTO>))]
-        public async Task<ActionResult<IEnumerable<EntradaDTO>>> GetEntradas([FromQuery] QueryObject query)
+        [ProducesResponseType(200, Type = typeof(PaginationEntradasDTO<EntradaDTO>))]
+        public async Task<ActionResult<PaginationEntradasDTO<EntradaDTO>>> GetEntradas([FromQuery] QueryObject query)
         {
-            IEnumerable<Entrada> entradas = await _entradaRepository.GetEntradas(query);
-            IEnumerable<EntradaDTO> entradasDTO = _mapper.Map(entradas);
+            PaginationEntradasDTO<Entrada> entradas = await _entradaRepository.GetEntradas(query, GetCurrentUserId());
+            IEnumerable<EntradaDTO> entradasDTO = _mapper.Map(entradas.Results);
 
-            return Ok(entradasDTO);
+            var paginationDTO = new PaginationEntradasDTO<EntradaDTO> (){
+                LimitPages = entradas.LimitPages,
+                Page = entradas.Page,
+                NextPage = entradas.NextPage,
+                Results = entradasDTO,
+            };
+
+            return Ok(paginationDTO);
         }
 
         // GET: api/Entrada/5
@@ -41,9 +54,7 @@ namespace GestorEconomico.API.Controllers
             var entrada = await _entradaRepository.GetEntradaById(id);
 
             if (entrada == null) {
-                return NotFound(new ProblemDetails {
-                    Title = "No se encontro la entrada"
-                });
+                return NotFound(HandleErrors.SetContext("No se encontro la entrada"));
             }
 
             EntradaDTO entradaDTO = _mapper.Map(entrada);
@@ -57,17 +68,20 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(409, Type = typeof(ProblemDetails))]
         public async Task<ActionResult<EntradaDTO>> PostEntrada([FromForm] EntradaCreateDTO nuevaEntradaDTO)
         {
+            string? userId = GetCurrentUserId();
             var queryObject = new QueryObject();
-            var entradas = await _entradaRepository.GetEntradas(queryObject);
-            Entrada? entradaExistente = entradas
+
+            var entradas = await _entradaRepository.GetEntradas(queryObject, userId);
+            var entradaExistente = entradas.Results
                 .Where(c => c.Descripcion.Trim().ToUpper() == nuevaEntradaDTO.Descripcion.Trim().ToUpper())
                 .FirstOrDefault();
 
             if(entradaExistente != null)  {
-                return StatusCode(409, new ProblemDetails { Title = "Entrada existente" });
+                return StatusCode(409, HandleErrors.SetContext("Entrada existente") );
             }
 
             Entrada nuevaEntrada = _mapper.Map(nuevaEntradaDTO); 
+            nuevaEntrada.UsuarioID = userId!;
 
             bool createdResult = await _entradaRepository.CreateEntrada(nuevaEntrada);
 

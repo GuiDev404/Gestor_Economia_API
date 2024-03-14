@@ -15,6 +15,8 @@ namespace GestorEconomico.API.DTOs
         public bool Eliminada { get; set; }
         public int CategoriaId { get; set; }
         public string? CategoriaNombre { get; set; }
+        public int CuentaId { get; set; }
+        public string? CuentaNombre { get; set; }
         public byte[]? File { get; set; }
         public string? FileType { get; set; }
         public string? Filename { get; set; }
@@ -36,11 +38,23 @@ namespace GestorEconomico.API.DTOs
 
         [Required(ErrorMessage = "Seleccione una categoria para la entrada")]
         public int CategoriaId { get; set; }
+ 
+        [Required(ErrorMessage = "Seleccione una cuenta para la entrada")]
+        public int CuentaId { get; set; }
     }
 
     public class EntradaUpdateDTO: EntradaCreateDTO {
         [Required(ErrorMessage = "Debe actualizar una entrada")]
         public int EntradaId { get; set; }
         // public string UsuarioID { get; set; }
+    }
+
+    public class PaginationEntradasDTO<T> where T: class {
+        public int Page { get; set; }
+        public int NextPage { get; set; }
+        
+        public decimal LimitPages { get; set; }
+        
+        public IEnumerable<T> Results { get; set; }
     }
 }
