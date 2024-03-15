@@ -47,8 +47,8 @@ authInstance.interceptors.response.use(response => {
             storagedAuth.accessToken = data.accessToken;
             storagedAuth.refreshToken = data.refreshToken;
             
-            setStorage(KEY_STORAGE, storagedAuth);
             originalReq.headers['Authorization'] = `Bearer ${data.accessToken}`;
+            setStorage(KEY_STORAGE, storagedAuth);
 
             return authInstance(originalReq);
           })

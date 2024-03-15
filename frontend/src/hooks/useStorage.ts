@@ -22,6 +22,7 @@ function useStorage <T>(key: string, defaultValue?: T) {
 
   const removeItem = () => {
     localStorage.removeItem(key);
+    setStorage(null)
   }
 
   return { storage, addData, removeItem  }

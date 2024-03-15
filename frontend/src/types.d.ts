@@ -22,9 +22,37 @@ export interface Entrada {
   eliminada:       boolean;
   categoriaId:     number;
   categoriaNombre: string;
+  categoriaColor:  string;
   cuentaId:        number;
   cuentaNombre:    string;
+  cuentaColor:     string;
   file:            string;
   fileType:        string;
   filename:        string;
+}
+
+export interface Cuentas {
+  cuentaId:    number;
+  titulo:      string;
+  descripcion: string;
+  usuarioID:   string;
+  color:       string;
+  emoji:       string;
+  eliminada:   boolean;
+}
+
+export enum TiposEntradas
+{
+  Egreso,
+  Ingreso
+}
+
+export interface Categoria {
+  categoriaId: number;
+  nombre:      string;
+  eliminada:   boolean;
+  usuarioID:   string;
+  tipoEntrada: TiposEntradas;
+  color:       string;
+  emoji:       string;
 }

@@ -7,6 +7,8 @@ import DashboardLayout from '../pages/DashboardLayout.tsx';
 import ProtectedRoute from './ProtectedRoute.tsx';
 import PublicRoute from './PublicRoute.tsx';
 import Entradas from '../pages/Entradas.tsx';
+import Cuentas from '../pages/Cuentas.tsx';
+import Categorias from '../pages/Categorias.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -44,11 +46,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "cuentas",
-        element: <h1> Cuentas </h1>,
+        element: <Cuentas />,
       },
       {
         path: "categorias",
-        element: <h1> Categorias </h1>,
+        element: <Categorias />,
       },
     ]
   }

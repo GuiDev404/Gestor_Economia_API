@@ -12,7 +12,7 @@ const DashboardLayout = () => {
   }
 
   return (
-    <div className='min-h-screen p-4'>
+    <div className='min-h-screen p-4 max-w-screen-md w-[95%] mx-auto'>
       <nav className=' flex justify-between items-center'>
         <div className='flex gap-2'>
           <Link to='/dashboard'> Entradas </Link>
