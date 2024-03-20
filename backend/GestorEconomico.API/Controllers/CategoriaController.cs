@@ -42,7 +42,7 @@ namespace GestorEconomico.API.Controllers
         [HttpGet("{id}")]
         [Authorize]
         [ProducesResponseType(200, Type = typeof(CategoriaDTO))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> GetCategoria(int id)
         {
             // esto o podria hacer llamar ExistCategoria(id)
@@ -61,7 +61,7 @@ namespace GestorEconomico.API.Controllers
         [HttpPut("{id}")]
         [Authorize]
         [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutCategoria(int id, [FromBody] CategoriaUpdateDTO categoriaDTO)
         {
@@ -74,23 +74,41 @@ namespace GestorEconomico.API.Controllers
             string? userId = GetCurrentUserId();
             if (id != categoriaDTO.CategoriaId || string.IsNullOrEmpty(userId))
             {
-                return BadRequest(HandleErrors.SetContext("No se encontro la categoria"));
+                ModelState.AddModelError("", "No se encontro la categoria");
+                return BadRequest(ModelState);
+                // return BadRequest(HandleErrors.SetContext("No se encontro la categoria"));
             }
 
-            Categoria? categoriaExistente = await _categoriaRepository.GetCategoriaById(id);
-            if (categoriaExistente == null || categoriaExistente.UsuarioID != userId) {
-                return NotFound(HandleErrors.SetContext("No se encontro la categoria"));
+            Categoria? categoriaEncontrada = await _categoriaRepository.GetCategoriaById(id);
+            if (categoriaEncontrada == null || categoriaEncontrada.UsuarioID != userId) {
+                ModelState.AddModelError("", "No se encontro la categoria");
+
+                return NotFound(ModelState);
+                // return NotFound(HandleErrors.SetContext("No se encontro la categoria"));
+            }
+
+            var queryParams = new QueryObject();
+            var categorias = await _categoriaRepository.GetCategorias(queryParams, userId!);
+            
+            Categoria? categoriaExistente = categorias
+                .Where(c => c.Nombre.Trim().ToUpper() == categoriaEncontrada.Nombre.Trim().ToUpper())
+                .FirstOrDefault();
+
+            if(categoriaExistente != null)  {
+                return StatusCode(409, LikeModelError.SetError("", "La categoria ya existe"));
+                // return StatusCode(409, LikeModelError.SetError("", "La categoria ya existe"));
             }
   
-            Categoria categoriasUpdated = _mapper.Map(categoriaExistente, categoriaDTO);
+            Categoria categoriasUpdated = _mapper.Map(categoriaEncontrada, categoriaDTO);
 
             bool updatedResult = await _categoriaRepository.UpdateCategoria(categoriasUpdated);
             if(!updatedResult){
-                ModelState.AddModelError("", "Algo salio mal actualizando la categoria");
-                return StatusCode(500, ModelState);
+                // ModelState.AddModelError("", "Algo salio mal actualizando la categoria");
+                // return StatusCode(500, HandleErrors.SetContext("Algo salio mal actualizando la categoria"));
+                return StatusCode(500, LikeModelError.SetError("","Algo salio mal actualizando la categoria"));
             }
 
-            return NoContent();
+            return Ok(categoriasUpdated);
         }
 
         // POST: api/Categoria
@@ -118,8 +136,8 @@ namespace GestorEconomico.API.Controllers
                 .CreateCategoria(nuevaCategoria);
             
             if(!createdResult){
-                ModelState.AddModelError("", "Algo salio mal guardando la categoria");
-                return StatusCode(500, ModelState);
+                // ModelState.AddModelError("", "Algo salio mal guardando la categoria");
+                return StatusCode(500, HandleErrors.SetContext("Algo salio mal guardando la categoria"));
             }
 
             CategoriaDTO nuevaCategoriaDTO = _mapper.Map(nuevaCategoria); 

@@ -37,6 +37,5 @@ namespace GestorEconomico.API.DTOs
     {
         [Required(ErrorMessage = "El id de la categoria es requerida")]
         public int CategoriaId { get; set; }
-
     }
 }

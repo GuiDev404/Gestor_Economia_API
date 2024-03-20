@@ -31,7 +31,7 @@ export interface Entrada {
   filename:        string;
 }
 
-export interface Cuentas {
+export interface Cuenta {
   cuentaId:    number;
   titulo:      string;
   descripcion: string;
@@ -48,11 +48,19 @@ export enum TiposEntradas
 }
 
 export interface Categoria {
-  categoriaId: number;
+  categoriaId: number | string;
   nombre:      string;
   eliminada:   boolean;
   usuarioID:   string;
-  tipoEntrada: TiposEntradas;
+  tipoEntrada: string | TiposEntradas;
   color:       string;
   emoji:       string;
+}
+
+export type CategoriaCreate = Pick<Categoria, 'color' | 'emoji' | 'nombre' | 'tipoEntrada'>
+export type CategoriaUpdate = Omit<Categoria, 'eliminada', 'usuarioID'>
+
+interface ErrorResponse {
+  status: number;
+  title: string;
 }

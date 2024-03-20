@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { BASE_URL } from "./config";
 import { KEY_STORAGE, getStorage, setStorage } from "../utils/storage";
 
@@ -36,24 +36,31 @@ authInstance.interceptors.response.use(response => {
           originalReq._retry = true;
           const storagedAuth = getStorage(KEY_STORAGE)
 
-          // console.log('ERROR 401: ', storagedAuth);
+          console.log('ERROR 401: ', storagedAuth);
 
           const res = normalInstance.post('/Auth/Refresh', {
             RefreshToken: storagedAuth?.refreshToken,
             AccessToken: storagedAuth?.accessToken
           })
           .then(({ data }) => {
-            console.log(data);
+
             storagedAuth.accessToken = data.accessToken;
             storagedAuth.refreshToken = data.refreshToken;
             
+            console.log({ storagedAuth, data });
+
             originalReq.headers['Authorization'] = `Bearer ${data.accessToken}`;
             setStorage(KEY_STORAGE, storagedAuth);
 
             return authInstance(originalReq);
           })
+          .catch(console.error)
 
           resolve(res);
+      } else if ([400, 404, 409, 500].includes(err.response.status)){
+        const errorData = err.response.data;
+        const errorMessage = errorData?.title || 'Algo salió mal';
+        throw new AxiosError(errorMessage, err.response.config, err.response.status, err.response.statusText, err.response);
       }
 
       return reject(err);

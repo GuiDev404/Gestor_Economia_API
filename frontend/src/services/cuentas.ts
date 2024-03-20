@@ -1,5 +1,5 @@
 import { authInstance } from ".";
-import { Cuentas } from "../types";
+import { Cuenta } from "../types";
 
-export const getAllCuentas = (): Promise<Cuentas[]> => authInstance.get(`/Cuenta`)
+export const getAllCuentas = (): Promise<Cuenta[]> => authInstance.get(`/Cuenta`)
   .then(res=> res.data)

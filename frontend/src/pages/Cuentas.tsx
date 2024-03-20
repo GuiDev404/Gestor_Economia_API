@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllCuentas } from "../services/cuentas";
+import List from "../components/List";
+import Cuenta from "../components/Cuenta";
 
 const Cuentas = () => {
   const {
@@ -22,22 +24,18 @@ const Cuentas = () => {
       </header>
       <div className="flex flex-col">
         {isPending ? (
-          <>
-            <div className="skeleton h-6 w-full"></div>
-            <div className="skeleton h-6 w-full"></div>
-          </>
+          <div className="flex flex-col gap-2">
+            <div className="skeleton h-10 w-full"></div>
+            <div className="skeleton h-10 w-full"></div>
+          </div>
         ) : (
-          cuentas?.map((cuenta) => {
-            return (
-              <div className="flex gap-4 bg-base-200 mb-2 rounded-md p-2">
-                <div>{cuenta.emoji}</div>
-                <div>
-                  <h2 className="font-bold text-xl"> {cuenta.titulo} </h2>
-                  <p className=""> {cuenta.descripcion} </p>
-                </div>
-              </div>
-            );
-          })
+          <List
+            items={cuentas}
+            selectKey={cuenta=> cuenta.cuentaId}
+            render={cuenta=> <Cuenta {...cuenta} />}
+            classNameItem="flex gap-4 bg-base-200 mb-2 rounded-md p-2 group"
+            emptyStateMsg="No hay cuentas aun, agregue alguna!"
+          />
         )}
       </div>
     </div>

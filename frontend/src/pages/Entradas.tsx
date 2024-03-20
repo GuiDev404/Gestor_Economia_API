@@ -40,20 +40,20 @@ const Entradas = () => {
 
       <header className="flex justify-between gap-4 mb-4">
         <h2 className="text-2xl font-bold"> Entradas </h2>
-        <div className="flex gap-x-2">
-        <select name="" className="select select-sm select-bordered" id="">
-            <option value="">[AÑO]</option>
-          </select>
+        {/* <div className="flex gap-x-2">
           <select name="" className="select select-sm select-bordered" id="">
-            <option value="">[MESES]</option>
-          </select>
-          <select name="" className="select select-sm select-bordered" id="">
-            <option value="">[CATEGORIAS]</option>
-          </select>
-          <select name="" className="select select-sm select-bordered" id="">
-            <option value="">[TIPO]</option>
-          </select>
-        </div>
+              <option value="">[AÑO]</option>
+            </select>
+            <select name="" className="select select-sm select-bordered" id="">
+              <option value="">[MESES]</option>
+            </select>
+            <select name="" className="select select-sm select-bordered" id="">
+              <option value="">[CATEGORIAS]</option>
+            </select>
+            <select name="" className="select select-sm select-bordered" id="">
+              <option value="">[TIPO]</option>
+            </select>
+          </div> */}
         <div>
           <button className="btn btn-sm btn-neutral" onClick={onOpen}>
             +

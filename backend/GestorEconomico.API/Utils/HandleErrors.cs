@@ -12,4 +12,10 @@ namespace GestorEconomico.API.Utils {
       return problemDetails;
     }
   }
+
+  public static class LikeModelError {
+    public static SerializableError SetError (string modelName, string message) {
+      return new SerializableError { { modelName, message } };
+    }
+  }
 }
