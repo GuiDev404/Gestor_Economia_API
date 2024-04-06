@@ -48,8 +48,12 @@ namespace GestorEconomico.API.Controllers
             // esto o podria hacer llamar ExistCuenta(id)
             var cuenta = await _cuentaRepository.GetCuentaById(id);
 
+            List<(string, string)> errors = new(); 
+
             if (cuenta == null) {
-                return NotFound(HandleErrors.SetContext("Recurso no encontrado", "No se encontro la cuenta"));
+                errors.Add(("", "No se encontro la categoria"));
+
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
             }
 
             CuentaDTO cuentaDTO = _mapper.Map(cuenta);
@@ -71,11 +75,16 @@ namespace GestorEconomico.API.Controllers
 
             var cuentas = await _cuentaRepository.GetCuentas(queryParams, userId!);
             Cuenta? cuentaExistente = cuentas
-                .Where(c => c.Titulo.Trim().ToLower() == cuentaCreateDTO.Titulo.Trim().ToLower())
+                .Where(c => 
+                    c.UsuarioID == userId &&
+                    c.Titulo.Trim().ToLower() == cuentaCreateDTO.Titulo.Trim().ToLower())
                 .FirstOrDefault();
 
+            List<(string, string)> errors = new(); 
+
             if(cuentaExistente != null)  {
-                return StatusCode(409, HandleErrors.SetContext("Cuenta existente", "Esta cuenta ya fue creada"));
+                errors.Add(("", "Esta cuenta ya fue creada"));
+                return HandleErrors.ErrorAPI("Conflict", errors, 409);
             }
 
             Cuenta nuevaCuenta = _mapper.Map(cuentaCreateDTO); 
@@ -86,8 +95,8 @@ namespace GestorEconomico.API.Controllers
             CuentaDTO nuevaCuentaDTO = _mapper.Map(nuevaCuenta); 
             
             if(!createdResult){
-                ModelState.AddModelError("", "Algo salio mal guardando la cuenta");
-                return StatusCode(500, ModelState);
+                errors.Add(("", "Lo sentimos, no se pudo guardar la cuenta"));
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
             return CreatedAtAction(
@@ -106,31 +115,50 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateCuenta(int id, [FromBody] CuentaUpdateDTO cuentaDTO)
         {
-            if (cuentaDTO == null) {
-                ModelState.AddModelError(string.Empty, "Una cuenta es requerida");
-                return BadRequest(ModelState);
-            }
+            // if (cuentaDTO == null) {
+            //     ModelState.AddModelError(string.Empty, "Una cuenta es requerida");
+            //     return BadRequest(ModelState);
+            // }
+            var queryParams = new QueryObject();
+            List<(string, string)> errors = new (); 
 
             string? userId = GetCurrentUserId();
 
             if (id != cuentaDTO.CuentaId || string.IsNullOrEmpty(userId)) {
-                return NotFound(HandleErrors.SetContext("No se encontro la cuenta "));
+                errors.Add(("", "No se encontro la cuenta"));
+                return HandleErrors.ErrorAPI("Bad Request", errors, 400);
             }
 
             Cuenta? cuentaExistente = await _cuentaRepository.GetCuentaById(id);
             if (cuentaExistente == null || cuentaExistente.UsuarioID != userId) {
-                return NotFound(HandleErrors.SetContext("No se encontro la cuenta"));
+                errors.Add(("", "No se encontro la cuenta"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
+            }
+
+            var categorias = await _cuentaRepository.GetCuentas(queryParams, userId!);
+            
+            Cuenta? cuentaExistante = categorias
+                .Where(c => 
+                    c.CuentaId != id &&
+                    c.UsuarioID == userId &&
+                    c.Titulo.Trim().ToLower() == cuentaDTO.Titulo.Trim().ToLower()
+                )
+                .FirstOrDefault();
+
+            if(cuentaExistante != null)  {
+                errors.Add(("", "La cuenta ya existe"));
+                return HandleErrors.ErrorAPI("Conflict", errors, 409);
             }
   
             Cuenta cuentaActualizada = _mapper.Map(cuentaExistente, cuentaDTO);
 
             bool updatedResult = await _cuentaRepository.UpdateCuenta(cuentaActualizada);
             if(!updatedResult){
-                ModelState.AddModelError(string.Empty, "Algo salio mal actualizando la cuenta");
-                return StatusCode(500, ModelState);
+                errors.Add(("", "Lo sentimos, no se pudo actualizar la cuenta"));
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
-            return NoContent();
+            return Ok(cuentaActualizada);
         }
 
 
@@ -143,23 +171,31 @@ namespace GestorEconomico.API.Controllers
         public async Task<IActionResult> DeleteCuenta(int id)
         {
             string? userId = GetCurrentUserId();
+            List<(string, string)> errors = new ();
             
             bool cuentaExistente = await _cuentaRepository.ExistCuenta(id, userId);
             if (!cuentaExistente) {
-                return NotFound(HandleErrors.SetContext("No se encontra la cuenta"));
-            }
-
-            if (string.IsNullOrEmpty(userId)) {
-                return Unauthorized(HandleErrors.SetContext("No autorizado para eliminar esta cuenta"));
+                errors.Add(("", "No se encontra la cuenta"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
             }
             
             Cuenta? cuenta = await _cuentaRepository.GetCuentaById(id);
+            if(cuenta == null){
+                errors.Add(("", "No se encontra la cuenta"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
+            }
+
+            bool existeEnEntrada = await _cuentaRepository.ExistCuentaInEntrada(cuenta.CuentaId, cuenta.UsuarioID);
+                
+            if(existeEnEntrada){
+                errors.Add(("", "La cuenta existe en una entrada, elimine primero esta"));
+                return HandleErrors.ErrorAPI("Conflict", errors, 409);
+            }
 
             bool deletedResult = await _cuentaRepository.DeleteCuenta(cuenta);
            
             if(!deletedResult){
-                ModelState.AddModelError(string.Empty, "Algo salio mal al eliminar la cuenta");
-                return StatusCode(500, ModelState);
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
             return NoContent();

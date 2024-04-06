@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { TiposEntradas } from "../types.d";
+import { CategoriaCreate, TiposEntradas } from "../types.d";
 import Input from "../components/Input";
 import InputEmojiPicker from "../components/InputEmojiPicker";
 import Modal, { ModalBody, ModalContent, ModalOverlay, ModalHeader, ButtonCloseModal } from "../components/Modal"
@@ -11,13 +11,14 @@ import { CategoriaCreateSchemaType, categoriaCreateSchema } from "../schemas/cat
 import List from "../components/List";
 import Categoria from "../components/Categoria";
 import { useState } from "react";
-import axios from "axios";
+
 import { ErrorIcon } from "../components/Icons";
+import toast from "react-hot-toast";
  
 const Categorias = () => {
   const { categorias, isError, isPending, createCategoria, deleteCategoria, updateMutation } = useCategorias()
-  const { register, handleSubmit, control, formState: { errors }, watch, setValue, reset } = useForm({
-    resolver: zodResolver(categoriaCreateSchema) // ver esto faltan prop como id y otras creo
+  const { register, handleSubmit, control, formState: { errors }, watch, setValue, reset } = useForm<CategoriaCreateSchemaType>({
+    resolver: zodResolver(categoriaCreateSchema) 
   })
   const [ modeEdit, setModeEdit ] = useState(false);
   const { isOpen, onClose, onOpen } = useDisclosure({ 
@@ -62,17 +63,17 @@ const Categorias = () => {
       const categoria = categorias?.find(equipo=> equipo.categoriaId === id)
       
       if(categoria){
-        const { categoriaId, color, emoji, nombre, tipoEntrada } = categoria
-        const entidadActualizar = Object.entries({ 
-          color, emoji, nombre, tipoEntrada, id: categoriaId.toString()
-        })
-      
+        const { categoriaId, ...propsCategoria } = categoria
+        const entidadActualizar = Object.entries({ ...propsCategoria, id: categoriaId.toString() })
+        
         for (const [ key, value ] of entidadActualizar) {
-          setValue(key, value)
+          setValue(key as keyof CategoriaCreateSchemaType, value)
         }
 
         onOpen()
         setModeEdit(true)
+      } else {
+        toast.error('No se encontro la categoria')
       }
 
     }
@@ -125,11 +126,12 @@ const Categorias = () => {
                     <span className="absolute top-12 left-3 text-xl cursor-pointer" onClick={toggleVisibilityEmojiPicker}> 
                     {watch('emoji') || '💡'}
                   </span>
-                    <InputEmojiPicker 
-                      control={control}
-                      isOpen={showEmojiPicker}
-                      toggleVisibilityEmojiPicker={toggleVisibilityEmojiPicker}
-                    />
+                  <InputEmojiPicker 
+                    name="emoji"
+                    control={control}
+                    isOpen={showEmojiPicker}
+                    toggleVisibilityEmojiPicker={toggleVisibilityEmojiPicker}
+                  />
                   </div>
               
 
@@ -138,11 +140,10 @@ const Categorias = () => {
                 <div className="col-span-8">
                   <Input 
                     label="Nombre"
-                    name="nombre"
-                    register={register}
-                    errors={errors}
+                    {...register('nombre')}
+                    error={errors.nombre?.message?.toString()} 
                     placeholder="Ingrese el nombre de la categoria"
-                    required
+                    isRequired
                   />
                 </div>
 
@@ -195,13 +196,13 @@ const Categorias = () => {
               </div>
             </div>
           ) : (
-            <List
-              items={egresos}
-              selectKey={categoria=> categoria.categoriaId}
-              classNameItem={categoria=> `${categoria.eliminada ? 'opacity-25' : ''} flex gap-4 items-center hover:bg-base-200 mb-2 rounded-md p-2`}
-              render={categoria=> <Categoria {...categoria} handleDelete={handleDelete} handleEdit={handleModeEdit} />}
-              emptyStateMsg="No hay categorias aun, agregue alguna!"
-            />
+              <List
+                items={egresos}
+                selectKey={categoria=> categoria.categoriaId}
+                classNameItem={`group flex gap-4 items-center hover:bg-base-200 mb-2 rounded-md p-2`}
+                render={categoria=> <Categoria {...categoria} handleDelete={handleDelete} handleEdit={handleModeEdit} />}
+                emptyStateMsg="No hay categorias aun, agregue alguna!"
+              />
           )}
         </div>
 
@@ -225,7 +226,7 @@ const Categorias = () => {
             <List
               items={ingresos}
               selectKey={categoria=> categoria.categoriaId}
-              classNameItem={categoria=> `${categoria.eliminada ? 'opacity-25' : ''} flex gap-4 items-center hover:bg-base-200 mb-2 rounded-md p-2`}
+              classNameItem={`group flex gap-4 items-center hover:bg-base-200 mb-2 rounded-md p-2`}
               render={categoria=> <Categoria {...categoria} handleDelete={handleDelete} handleEdit={handleModeEdit} />}
             />
        

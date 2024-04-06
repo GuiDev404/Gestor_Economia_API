@@ -21,6 +21,7 @@ export interface Entrada {
   fechaFin?:       Date;
   eliminada:       boolean;
   categoriaId:     number;
+  usuarioID:     string;
   categoriaNombre: string;
   categoriaColor:  string;
   cuentaId:        number;
@@ -30,6 +31,13 @@ export interface Entrada {
   fileType:        string;
   filename:        string;
 }
+
+export type EntradaCreate = Pick<
+  Entrada,
+  'descripcion' | 'categoriaId' | 'cuentaId' | 'fechaInicio' | 'file'
+> 
+
+export type EntradaUpdate = Omit<Entrada, 'usuarioID' | 'eliminada'> 
 
 export interface Cuenta {
   cuentaId:    number;
@@ -41,8 +49,10 @@ export interface Cuenta {
   eliminada:   boolean;
 }
 
-export enum TiposEntradas
-{
+export type CuentaCreate = Pick<Cuenta, 'color' | 'descripcion' | 'emoji' | 'titulo'> 
+export type CuentaUpdate = Omit<Cuenta, 'eliminada' | 'usuarioID'> 
+
+export enum TiposEntradas {
   Egreso,
   Ingreso
 }
@@ -58,7 +68,7 @@ export interface Categoria {
 }
 
 export type CategoriaCreate = Pick<Categoria, 'color' | 'emoji' | 'nombre' | 'tipoEntrada'>
-export type CategoriaUpdate = Omit<Categoria, 'eliminada', 'usuarioID'>
+export type CategoriaUpdate = Omit<Categoria, 'eliminada' | 'usuarioID'>
 
 interface ErrorResponse {
   status: number;

@@ -26,7 +26,7 @@ namespace GestorEconomico.API.DTOs
         [EnumDataType(typeof(TiposEntradas), ErrorMessage = "El valor proporcionado no es un tipo de entrada válido")]
         public TiposEntradas TipoEntrada { get; set; }
 
-        // [Required(ErrorMessage = "El color para la categoria es requerido")]
+        [Required(ErrorMessage = "El color para la categoria es requerido")]
         public string Color { get; set; }
 
         [Required(ErrorMessage = "El emoji para la categoria es requerido")]

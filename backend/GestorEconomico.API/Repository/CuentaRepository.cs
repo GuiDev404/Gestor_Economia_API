@@ -33,18 +33,16 @@ namespace GestorEconomico.API.Repository
                 cuenta.Eliminada = false;
                 return await Save();
             } else {
-                bool existeEnEntrada = await ExistCuentaInEntrada(cuenta.CuentaId);
-                
-                if(existeEnEntrada) return false;
 
                 cuenta.Eliminada = true;
                 return await Save();
             }
         }
 
-        public async Task<bool> ExistCuentaInEntrada(int idCuenta)
+        public async Task<bool> ExistCuentaInEntrada(int idCuenta, string userId)
         {
-            bool existeEnEntrada = await _context.Entradas.AnyAsync(entrada=> entrada.CuentaId == idCuenta);
+            bool existeEnEntrada = await _context.Entradas
+                .AnyAsync(entrada=> entrada.CuentaId == idCuenta && entrada.UsuarioID == userId);
             return existeEnEntrada;
         }
 

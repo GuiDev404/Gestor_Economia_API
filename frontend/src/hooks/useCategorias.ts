@@ -14,7 +14,7 @@ export const useCategorias = () => {
   });
 
   const queryClient = useQueryClient()
- 
+
   const createCategoria = useMutation({
     mutationFn: newCategoria,
     onSuccess: (response)=> {
@@ -30,15 +30,13 @@ export const useCategorias = () => {
     },
     onError: (error: Error | AxiosError)=> {
       console.log(error);
-
+  
       if (axios.isAxiosError(error))  {
-        // if(error.response?.status === 409){
           setTimeout(()=> {
             createCategoria.reset();
           }, 3500)
-        // } 
       } 
-
+  
     }
   })
 
@@ -60,11 +58,12 @@ export const useCategorias = () => {
     onError: (error)=> {
       console.log({ updateCategoriaError: error });
 
-      // if(error.response.status === 404){
-      //   toast.error(error.response?.data?.message ?? 'No se encontro el medio!')
-      // } else {
-      //   toast.error('Algo salio mal, no se pudo editar el medio!')
-      // }
+      if (axios.isAxiosError(error))  {
+        setTimeout(()=> {
+          updateMutation.reset();
+        }, 3500)
+      } 
+
     }
   })
 
@@ -75,21 +74,24 @@ export const useCategorias = () => {
       const categoriasEnCache: Categoria[] | undefined = categorias || queryClient.getQueryData([CATEGORIA_QUERY_KEY]);
 
       if(categoriasEnCache !== undefined){
+        const categoriaId = parseInt(variables, 10);
         const cacheUpdated = categoriasEnCache.map(c=> {
-          return c.categoriaId === parseInt(variables, 10) ? ({ ...c, eliminada: !c.eliminada }) : c
+          return c.categoriaId === categoriaId ? ({ ...c, eliminada: !c.eliminada }) : c
         })
-        queryClient.setQueryData([CATEGORIA_QUERY_KEY], cacheUpdated)
-        toast.success('Categoria eliminada correctamente!')
+        
+        const categoria: Categoria | undefined = cacheUpdated.find(c=> c.categoriaId == categoriaId);
+        queryClient.setQueryData([CATEGORIA_QUERY_KEY], cacheUpdated);
+
+        toast.success(`Categoria ${categoria?.eliminada ? 'deshabilitada' : 'recuperada'} correctamente!`)
       }
     },
     onError: (error)=> {
-      // const ERROR_MSG_STATUS = [404, 400]
       console.log(error);
-      // if(ERROR_MSG_STATUS.includes(error.response.status)){
-      //   toast.error(error.response?.data?.message ?? 'No se encontro el medio!')
-      // } else {
-      //   toast.error('Algo salio mal, no se pudo eliminar el medio!')
-      // }
+      if (axios.isAxiosError(error) )  {
+        toast.error(error.response?.data?.errors[""] ?? 'Algo salio mal, no se pudo eliminar la categoria!')
+      } else {
+        toast.error('Algo salio mal, no se pudo eliminar la categoria!')
+      }
     }
   })
 

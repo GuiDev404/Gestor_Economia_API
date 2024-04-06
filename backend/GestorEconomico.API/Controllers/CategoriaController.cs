@@ -5,6 +5,7 @@ using GestorEconomico.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using GestorEconomico.API.Utils;
 using System.Security.Claims;
+using System.Linq;
 
 namespace GestorEconomico.API.Controllers
 {
@@ -48,8 +49,14 @@ namespace GestorEconomico.API.Controllers
             // esto o podria hacer llamar ExistCategoria(id)
             var categoria = await _categoriaRepository.GetCategoriaById(id);
 
+            List<(string, string)> errors = new(); 
+
             if (categoria == null) {
-                return NotFound(HandleErrors.SetContext("No se encontro la categoria"));
+                errors.Add(("", "No se encontro la categoria"));
+            }
+
+            if (errors.Any())  {
+                return HandleErrors.ErrorAPI("Not Found", errors, 404); 
             }
 
             CategoriaDTO categoriaDTO = _mapper.Map(categoria);
@@ -65,47 +72,44 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutCategoria(int id, [FromBody] CategoriaUpdateDTO categoriaDTO)
         {
-            if (categoriaDTO == null)
-            {
-                ModelState.AddModelError("", "Una categoria es requerida");
-                return BadRequest(ModelState);
-            }
+            // if (categoriaDTO == null)
+            // {
+            //     ModelState.AddModelError("", "Una categoria es requerida");
+            //     return BadRequest(ModelState);
+            // }
             
+            List<(string, string)> errors = new (); 
+
             string? userId = GetCurrentUserId();
             if (id != categoriaDTO.CategoriaId || string.IsNullOrEmpty(userId))
             {
-                ModelState.AddModelError("", "No se encontro la categoria");
-                return BadRequest(ModelState);
-                // return BadRequest(HandleErrors.SetContext("No se encontro la categoria"));
+                errors.Add(("", "No se encontro la categoria"));
+                return HandleErrors.ErrorAPI("Bad Request", errors, 400);
             }
 
             Categoria? categoriaEncontrada = await _categoriaRepository.GetCategoriaById(id);
             if (categoriaEncontrada == null || categoriaEncontrada.UsuarioID != userId) {
-                ModelState.AddModelError("", "No se encontro la categoria");
-
-                return NotFound(ModelState);
-                // return NotFound(HandleErrors.SetContext("No se encontro la categoria"));
+                errors.Add(("", "No se encontro la categoria"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
             }
 
             var queryParams = new QueryObject();
             var categorias = await _categoriaRepository.GetCategorias(queryParams, userId!);
             
             Categoria? categoriaExistente = categorias
-                .Where(c => c.Nombre.Trim().ToUpper() == categoriaEncontrada.Nombre.Trim().ToUpper())
+                .Where(c => c.CategoriaId != id && c.UsuarioID == userId && c.Nombre.Trim().ToUpper() == categoriaDTO.Nombre.Trim().ToUpper())
                 .FirstOrDefault();
 
             if(categoriaExistente != null)  {
-                return StatusCode(409, LikeModelError.SetError("", "La categoria ya existe"));
-                // return StatusCode(409, LikeModelError.SetError("", "La categoria ya existe"));
+                errors.Add(("", "La categoria ya existe"));
+                return HandleErrors.ErrorAPI("Conflict", errors, 409);
             }
   
             Categoria categoriasUpdated = _mapper.Map(categoriaEncontrada, categoriaDTO);
 
             bool updatedResult = await _categoriaRepository.UpdateCategoria(categoriasUpdated);
             if(!updatedResult){
-                // ModelState.AddModelError("", "Algo salio mal actualizando la categoria");
-                // return StatusCode(500, HandleErrors.SetContext("Algo salio mal actualizando la categoria"));
-                return StatusCode(500, LikeModelError.SetError("","Algo salio mal actualizando la categoria"));
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
             return Ok(categoriasUpdated);
@@ -126,18 +130,18 @@ namespace GestorEconomico.API.Controllers
                 .Where(c => c.Nombre.Trim().ToUpper() == categoria.Nombre.Trim().ToUpper())
                 .FirstOrDefault();
 
-            if(categoriaExistente != null)  {
-                return StatusCode(409, HandleErrors.SetContext("La categoria ya existe"));
+            List<(string, string)> errors = new ();
+            if(categoriaExistente != null) {
+                errors.Add(("", "La categoria ya existe"));
+                return HandleErrors.ErrorAPI("Conflict", errors, 409);
             }
 
             Categoria nuevaCategoria = _mapper.Map(categoria); 
             nuevaCategoria.UsuarioID = userId!;
-            bool createdResult = await _categoriaRepository
-                .CreateCategoria(nuevaCategoria);
-            
+
+            bool createdResult = await _categoriaRepository.CreateCategoria(nuevaCategoria);
             if(!createdResult){
-                // ModelState.AddModelError("", "Algo salio mal guardando la categoria");
-                return StatusCode(500, HandleErrors.SetContext("Algo salio mal guardando la categoria"));
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
             CategoriaDTO nuevaCategoriaDTO = _mapper.Map(nuevaCategoria); 
@@ -159,21 +163,25 @@ namespace GestorEconomico.API.Controllers
         {
             string userId = GetCurrentUserId();
             bool existCategoria = await _categoriaRepository.ExistCategoria(id, userId);
+            
+            List<(string, string)> errors = new ();
+
             if (!existCategoria) {
-                return NotFound("No se encontra la categoria");
+                errors.Add(("", "No se encontra la categoria"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
             }
 
             Categoria? categoria = await _categoriaRepository.GetCategoriaById(id);
 
             if(categoria == null || categoria.UsuarioID == ""){
-                return NotFound("No se encontra la categoria");
+                errors.Add(("", "No se encontra la categoria"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
             }
 
             bool deletedResult = await _categoriaRepository.DeleteCategoria(categoria);
            
             if(!deletedResult){
-                ModelState.AddModelError("", "Algo salio mal al eliminar la categoria");
-                return StatusCode(500, ModelState);
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
             return NoContent();

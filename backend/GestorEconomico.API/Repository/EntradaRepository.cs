@@ -1,3 +1,4 @@
+using System.Globalization;
 using GestorEconomico.API.Data;
 using GestorEconomico.API.DTOs;
 using GestorEconomico.API.Interfaces;
@@ -47,15 +48,18 @@ namespace GestorEconomico.API.Repository
                 .Include(e=> e.Cuenta)
                 .Where(e=> e.UsuarioID == userId);
 
-            if(query.DateInit != default && query.DateInit != null && query.DateEnd != null && query.DateEnd != default){
-                entradas = entradas.Where(e=> e.FechaInicio >= query.DateInit && e.FechaFin <= query.DateEnd);
+            if(query.DateInit.HasValue && query.DateEnd.HasValue){
+                entradas = entradas.Where(e => 
+                    e.FechaInicio.Date >= query.DateInit.Value.Date &&
+                    e.FechaInicio.Date <= query.DateEnd.Value.Date
+                );
             }
 
             if(query.SortBy != null){
-                if(query.SortBy.Equals("Monto", StringComparison.OrdinalIgnoreCase)){
+                if(query.SortBy.Equals("FechaInicio", StringComparison.OrdinalIgnoreCase)){
                     entradas = query.IsDescending 
-                        ? entradas.OrderByDescending(c=> c.Monto)
-                        : entradas.OrderBy(c=> c.Monto);
+                        ? entradas.OrderByDescending(c=> c.FechaInicio.Day)
+                        : entradas.OrderBy(c=> c.FechaInicio.Day);
                 }
             }
 
@@ -72,7 +76,7 @@ namespace GestorEconomico.API.Repository
                 Page = query.PageNumber,
                 NextPage = query.PageNumber + 1,
                 LimitPages = Math.Ceiling(limit),
-                Results = entradasList
+                Results = entradas.ToList()
             };
         }
 

@@ -32,7 +32,8 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(200, Type = typeof(PaginationEntradasDTO<EntradaDTO>))]
         public async Task<ActionResult<PaginationEntradasDTO<EntradaDTO>>> GetEntradas([FromQuery] QueryObject query)
         {
-            PaginationEntradasDTO<Entrada> entradas = await _entradaRepository.GetEntradas(query, GetCurrentUserId());
+            PaginationEntradasDTO<Entrada> entradas = await _entradaRepository
+                .GetEntradas(query, GetCurrentUserId());
             IEnumerable<EntradaDTO> entradasDTO = _mapper.Map(entradas.Results);
 
             var paginationDTO = new PaginationEntradasDTO<EntradaDTO> (){

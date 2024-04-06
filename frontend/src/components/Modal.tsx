@@ -39,7 +39,7 @@ export const ModalContent: React.FC<ModalGeneralProps> = ({ children, className 
   const { size } = useContext(ModalContext)!;
 
   const sizes = {
-    'sm': 'w-5/12',
+    'sm': 'sm:w-8/12 md:w-5/12 w-11/12',
     'md': 'w-7/12',
     'lg': 'w-10/12',
   }

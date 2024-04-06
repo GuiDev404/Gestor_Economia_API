@@ -9,7 +9,7 @@ namespace GestorEconomico.API.Interfaces
         Task<IEnumerable<Entrada>?> GetEntradasByCuentas(int idCuenta, string? userId);
         Task<Cuenta?> GetCuentaById(int id);
         Task<bool> ExistCuenta (int id, string? userId);
-        Task<bool> ExistCuentaInEntrada (int idCuenta);
+        Task<bool> ExistCuentaInEntrada (int idCuenta, string userId);
         Task<bool> CreateCuenta (Cuenta cuenta);
         Task<bool> UpdateCuenta (Cuenta cuenta);
         Task<bool> DeleteCuenta (Cuenta cuenta);

@@ -15,7 +15,7 @@ const List = <T,>({
   render,
   className = "",
   classNameItem = "",
-  emptyStateMsg = ""
+  emptyStateMsg = "Lista vacia"
 }: ListProps<T>): JSX.Element => {
   return (
     <ul className={className}>

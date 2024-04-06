@@ -57,11 +57,13 @@ authInstance.interceptors.response.use(response => {
           .catch(console.error)
 
           resolve(res);
-      } else if ([400, 404, 409, 500].includes(err.response.status)){
-        const errorData = err.response.data;
-        const errorMessage = errorData?.title || 'Algo salió mal';
-        throw new AxiosError(errorMessage, err.response.config, err.response.status, err.response.statusText, err.response);
-      }
+      } 
+      
+      // else if ([400, 404, 405, 409, 500].includes(err.response.status)){
+      //   const errorData = err.response.data;
+      //   const errorMessage = errorData?.errors[""] || 'Algo salió mal';
+      //   throw new AxiosError(errorMessage, err.response.config, err.response.status, err.response.statusText, err.response);
+      // }
 
       return reject(err);
     });

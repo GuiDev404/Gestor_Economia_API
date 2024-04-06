@@ -1,13 +1,20 @@
 import React from "react";
-import { Cuenta } from "../types.d";
+import { type Cuenta } from "../types.d";
 import { DeleteIcon, DeleteOffIcon, EditIcon } from "./Icons";
 
-const Cuenta: React.FC<Cuenta> = ({
+interface CuentaProps extends Cuenta {
+  handleDelete: (id: string)=> ()=> void;
+  handleEdit: (id: string | number) => () => void
+}
+
+const Cuenta: React.FC<CuentaProps> = ({
   emoji,
   color,
   titulo,
   descripcion,
   eliminada,
+  handleDelete,
+  handleEdit,
   cuentaId,
 }) => {
   const bgEmoji = color.trim() ? color : "inherit";
@@ -32,7 +39,7 @@ const Cuenta: React.FC<Cuenta> = ({
           {!eliminada && (
             <button
               className="btn btn-xs btn-neutral h-7"
-              // onClick={handleEdit(cuentaId)}
+              onClick={handleEdit(cuentaId)}
             >
               <EditIcon width={14} height={14} />
             </button>
@@ -43,7 +50,7 @@ const Cuenta: React.FC<Cuenta> = ({
                 ? `btn-success text-white tooltip tooltip-left group-hover:opacity-100 group-hover:select-auto ${disabledClassName}`
                 : ""
             }`}
-            // onClick={handleDelete(cuentaId.toString() as string)}
+            onClick={handleDelete(cuentaId.toString() as string)}
             data-tip="Recuperar?"
           >
             {eliminada ? (
