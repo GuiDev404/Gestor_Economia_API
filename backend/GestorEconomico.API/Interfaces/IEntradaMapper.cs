@@ -9,6 +9,8 @@ namespace GestorEconomico.API.Interfaces {
 
     Entrada Map(EntradaCreateDTO dto);
     Entrada Map(EntradaUpdateDTO dto);
+
+    Entrada Map(Entrada result, EntradaUpdateDTO dto);
   }
 
 }

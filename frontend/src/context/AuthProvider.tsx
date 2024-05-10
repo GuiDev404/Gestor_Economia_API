@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useMemo } from 'react'
-import { KEY_STORAGE, getStorage, setStorage } from '../utils/storage'
+import { KEY_STORAGE } from '../utils/storage'
 import { User } from '../types';
 import useStorage from '../hooks/useStorage';
 
@@ -36,7 +36,8 @@ const AuthProvider:React.FC<AuthProviderProps> = ({ children }) => {
         accessToken: storage?.accessToken ? `Bearer ${storage.accessToken}` : null, 
         refreshToken: storage?.refreshToken ? `Bearer ${storage.refreshToken}` : null, 
         rol: storage?.rol,
-        userId: storage?.userId
+        userId: storage?.userId,
+        email: storage?.email
       },
       login,
       logout,

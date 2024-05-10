@@ -3,6 +3,7 @@ export type User = {
   userId: string | null
   accessToken: string | null
   refreshToken: string | null
+  email: string | null
 } | null
 
 export interface EntradasResponse {
@@ -17,14 +18,14 @@ export interface Entrada {
   descripcion:     string;
   tiposEntrada:    number;
   monto:           number;
-  fechaInicio:     Date;
+  fechaInicio:     Date | string;
   fechaFin?:       Date;
   eliminada:       boolean;
-  categoriaId:     number;
+  categoriaId:     string;
   usuarioID:     string;
   categoriaNombre: string;
   categoriaColor:  string;
-  cuentaId:        number;
+  cuentaId:        string;
   cuentaNombre:    string;
   cuentaColor:     string;
   file:            string;
@@ -34,10 +35,10 @@ export interface Entrada {
 
 export type EntradaCreate = Pick<
   Entrada,
-  'descripcion' | 'categoriaId' | 'cuentaId' | 'fechaInicio' | 'file'
-> 
+  'descripcion' | 'categoriaId' | 'cuentaId' | 'fechaInicio' | 'monto'
+> & { comprobante?: File | null }
 
-export type EntradaUpdate = Omit<Entrada, 'usuarioID' | 'eliminada'> 
+export type EntradaUpdate = EntradaCreate & { entradaId: number } 
 
 export interface Cuenta {
   cuentaId:    number;

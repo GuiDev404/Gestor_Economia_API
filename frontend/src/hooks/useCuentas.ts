@@ -10,6 +10,7 @@ const useCuentas = () => {
   const { data: cuentas, isPending, isError } = useQuery({
     queryKey: [CUENTAS_QUERY_KEY],
     queryFn: getAllCuentas,
+    refetchOnReconnect: true
   });
 
   const queryClient = useQueryClient()
@@ -17,7 +18,7 @@ const useCuentas = () => {
   const createCuenta = useMutation({
     mutationFn: newCuenta,
     onSuccess: (response)=> {
-      const categoriasEnCache: Cuenta[] | undefined = cuentas || queryClient.getQueryData([CUENTAS_QUERY_KEY]);
+      const categoriasEnCache: Cuenta[] | undefined = queryClient.getQueryData([CUENTAS_QUERY_KEY]);
 
       if(categoriasEnCache !== undefined){
         const cacheUpdated = categoriasEnCache.concat(response.data as Cuenta)
@@ -86,9 +87,9 @@ const useCuentas = () => {
     onError: (error)=> {
       console.log(error);
       if (axios.isAxiosError(error) )  {
-        toast.error(error.response?.data?.errors[""] ?? 'Algo salio mal, no se pudo eliminar la categoria!')
+        toast.error(error.response?.data?.errors[""] ?? 'Algo salio mal, no se pudo eliminar la cuenta!')
       } else {
-        toast.error('Algo salio mal, no se pudo eliminar la categoria!')
+        toast.error('Algo salio mal, no se pudo eliminar la cuenta!')
       }
     }
   })

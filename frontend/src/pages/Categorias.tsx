@@ -30,8 +30,7 @@ const Categorias = () => {
   const { isOpen: showEmojiPicker, toggle: toggleVisibilityEmojiPicker } = useDisclosure();
 
 
-  console.log(errors);
-
+ 
   const onSubmit = (data: CategoriaCreateSchemaType) => {
     if(!data.id){
       const { id, ...nuevaCategoriaData } = data; 
@@ -79,10 +78,7 @@ const Categorias = () => {
     }
   }
 
-  console.log(createCategoria.error, updateMutation.error);
-  // console.log({ categorias, isPending, isError });
-
-  // console.log(isError && createCategoria.error);
+ 
   const errores = (createCategoria.error || updateMutation.error)
   const alertError = errores ? errores?.message || 'Lo sentimos algo salio mal!' : ''
   

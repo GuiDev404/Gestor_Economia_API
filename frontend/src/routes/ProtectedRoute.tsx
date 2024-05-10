@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ redirectTo = "/auth/login", children }: ProtectedRouteProps) {
   const { isLogged } = useAuth()
   
-  console.log(isLogged());
+  // console.log(isLogged());
 
   if (!isLogged()) {
    return <Navigate to={redirectTo} />

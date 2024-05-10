@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const Cuentas = () => {
   const { cuentas, isPendingCuentas, createCuenta, deleteCuenta, updateMutation } = useCuentas()
-  const { register, handleSubmit, control, formState: { errors }, watch, setValue, setError, clearErrors, reset } = useForm<CuentaFormSchemaType>({
+  const { register, handleSubmit, control, formState: { errors }, watch, setValue, setError, clearErrors, reset } = useForm<CuentaFormSchemaType & { ""?: string }>({
     resolver: zodResolver(cuentaFormSchema) // ver esto faltan prop como id y otras creo
   })
   const [ modeEdit, setModeEdit ] = useState(false);
@@ -35,8 +35,7 @@ const Cuentas = () => {
         if(Array.isArray(errors)) {
           setError(key.toLowerCase() as ErrorKeysFormSchema, { message: errors[0], type: 'prop_validation' })
         } else {
-          console.log(error);
-
+ 
           if(error.response?.status && [400, 500].includes(error.response.status)){
             onClose();
             toast.error(errors)

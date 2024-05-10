@@ -15,6 +15,7 @@ namespace GestorEconomico.API.DTOs
         public bool Eliminada { get; set; }
         public int CategoriaId { get; set; }
         public string? CategoriaNombre { get; set; }
+        public string? CategoriaColor { get; set; }
         public int CuentaId { get; set; }
         public string? CuentaNombre { get; set; }
         public byte[]? File { get; set; }
@@ -46,7 +47,6 @@ namespace GestorEconomico.API.DTOs
     public class EntradaUpdateDTO: EntradaCreateDTO {
         [Required(ErrorMessage = "Debe actualizar una entrada")]
         public int EntradaId { get; set; }
-        // public string UsuarioID { get; set; }
     }
 
     public class PaginationEntradasDTO<T> where T: class {

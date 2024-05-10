@@ -16,10 +16,10 @@ export const categoriaCreateSchema = z.object({
     .number({ required_error: 'El tipo de entrada es requerido', coerce: true })
     .refine((tipo_entrada: number)=> {
       const TiposEntradasEnum = z.nativeEnum(TiposEntradas);
-      console.log(tipo_entrada);
+ 
       // const tipo_entrada_number = parseInt(tipo_entrada, 10);
       const result = TiposEntradasEnum.safeParse(tipo_entrada);
-      // console.log({ tipo_entrada_number, result });
+ 
       return result.success
     }, 'Seleccione un tipo de entrada valido'),
   emoji: z

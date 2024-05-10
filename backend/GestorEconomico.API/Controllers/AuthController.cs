@@ -108,7 +108,8 @@ namespace GestorEconomico.API.Controllers
                 creationTokensResult.accessToken,
                 creationTokensResult.refreshToken,
                 rol = usuarioConRol.Roles[0],
-                userId = usuarioConRol.Usuario.Id
+                userId = usuarioConRol.Usuario.Id,
+                email = usuarioConRol.Usuario.Email
             };
 
             return Ok(response);

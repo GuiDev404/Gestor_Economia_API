@@ -8,6 +8,12 @@ interface SearchQueryParams {
   sortBy: 'FechaInicio' | 'string'
 } 
 
+const headerToFormData = { 
+  headers: {
+    'Content-Type': 'multipart/form-data'
+  }
+}
+
 export const getAllEntradas = ({
   dateInit,
   dateEnd,
@@ -19,10 +25,10 @@ export const getAllEntradas = ({
     .then((res) => res.data);
 
 export const newEntrada = (entrada: EntradaCreate) =>
-  authInstance.post<Entrada | ErrorResponse>(`/Entrada`, entrada)
+  authInstance.post<Entrada | ErrorResponse>(`/Entrada`, entrada, headerToFormData)
 
 export const removeEntrada = (entradaId: string) =>
   authInstance.delete<Entrada | ErrorResponse>(`/Entrada/${entradaId}`)
 
 export const updateEntrada = ({ entradaId, data }: { entradaId: string, data: EntradaUpdate }) => 
-  authInstance.put<Entrada>(`/Entrada/${entradaId}`, data);
+  authInstance.put<Entrada>(`/Entrada/${entradaId}`, data, headerToFormData);

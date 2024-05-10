@@ -62,6 +62,27 @@ export const ArrowDownIcon: React.FC<SvgIconProps> = (props) => {
   );
 };
 
+export const ArrowRightIcon: React.FC<SvgIconProps> = (props) => {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M5 12l14 0" />
+      <path d="M13 18l6 -6" />
+      <path d="M13 6l6 6" />
+    </svg>
+  );
+};
+
 export const EditIcon: React.FC<SvgIconProps> = (props) => {
   return (
     <svg
@@ -145,6 +166,75 @@ export const ErrorIcon: React.FC<SvgIconProps> = (props) => {
         strokeWidth="2"
         d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
       />
+    </svg>
+  );
+};
+
+export const MinimizeIcon: React.FC<SvgIconProps> = (props) => {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M15 19v-2a2 2 0 0 1 2 -2h2" />
+      <path d="M15 5v2a2 2 0 0 0 2 2h2" />
+      <path d="M5 15h2a2 2 0 0 1 2 2v2" />
+      <path d="M5 9h2a2 2 0 0 0 2 -2v-2" />
+    </svg>
+  );
+};
+
+export const MaximizeIcon: React.FC<SvgIconProps> = (props) => {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M16 4l4 0l0 4" />
+      <path d="M14 10l6 -6" />
+      <path d="M8 20l-4 0l0 -4" />
+      <path d="M4 20l6 -6" />
+      <path d="M16 20l4 0l0 -4" />
+      <path d="M14 14l6 6" />
+      <path d="M8 4l-4 0l0 4" />
+      <path d="M4 4l6 6" />
+    </svg>
+  );
+};
+
+export const MenuIcon: React.FC<SvgIconProps> = (props) => {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M4 6l16 0" />
+      <path d="M4 12l16 0" />
+      <path d="M4 18l16 0" />
     </svg>
   );
 };

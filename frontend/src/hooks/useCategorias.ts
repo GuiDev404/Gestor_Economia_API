@@ -10,7 +10,8 @@ export const useCategorias = () => {
   const { data: categorias, isPending, isError, error } = useQuery({
     queryKey: [CATEGORIA_QUERY_KEY],
     queryFn: getAllCategorias,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true
   });
 
   const queryClient = useQueryClient()
@@ -18,8 +19,7 @@ export const useCategorias = () => {
   const createCategoria = useMutation({
     mutationFn: newCategoria,
     onSuccess: (response)=> {
-
-      const categoriasEnCache: Categoria[] | undefined = categorias || queryClient.getQueryData([CATEGORIA_QUERY_KEY]);
+      const categoriasEnCache: Categoria[] | undefined = queryClient.getQueryData([CATEGORIA_QUERY_KEY]);
 
       if(categoriasEnCache !== undefined){
         const cacheUpdated = categoriasEnCache.concat(response.data as Categoria)
@@ -29,7 +29,6 @@ export const useCategorias = () => {
       }
     },
     onError: (error: Error | AxiosError)=> {
-      console.log(error);
   
       if (axios.isAxiosError(error))  {
           setTimeout(()=> {
@@ -56,7 +55,6 @@ export const useCategorias = () => {
 
     },
     onError: (error)=> {
-      console.log({ updateCategoriaError: error });
 
       if (axios.isAxiosError(error))  {
         setTimeout(()=> {
@@ -70,7 +68,7 @@ export const useCategorias = () => {
   const deleteCategoria = useMutation({
     mutationFn: removeCategoria,
     onSuccess: (response, variables)=> {
-      console.log('delete categoria: ',{ response, variables });
+    
       const categoriasEnCache: Categoria[] | undefined = categorias || queryClient.getQueryData([CATEGORIA_QUERY_KEY]);
 
       if(categoriasEnCache !== undefined){
@@ -86,7 +84,7 @@ export const useCategorias = () => {
       }
     },
     onError: (error)=> {
-      console.log(error);
+ 
       if (axios.isAxiosError(error) )  {
         toast.error(error.response?.data?.errors[""] ?? 'Algo salio mal, no se pudo eliminar la categoria!')
       } else {

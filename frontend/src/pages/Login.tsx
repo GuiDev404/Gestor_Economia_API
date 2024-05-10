@@ -27,8 +27,7 @@ const Login = () => {
       })
       .catch(error=> {
         if (error.response) {
-          console.log(error.response.data.errors)
-
+   
           const message = error.response.data.message || 'Contraseña o correo incorrecto!';
           setError("root", { type: "manual", message });
         } 

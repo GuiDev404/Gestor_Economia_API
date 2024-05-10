@@ -32,7 +32,7 @@ const Modal: React.FC<ModalProviderProps> = ({ children, size, isOpen = false, o
 export const ModalOverlay = ()=> {
   const { onClose } = useContext(ModalContext)!;
 
-  return <div onClick={onClose} className='z-40 fixed left-0 top-0 w-full h-full bg-black bg-opacity-50'></div>
+  return <div onClick={onClose} className='fixed z-10 left-0 top-0 w-full h-full bg-black bg-opacity-50'></div>
 }
 
 export const ModalContent: React.FC<ModalGeneralProps> = ({ children, className })=> {
@@ -44,11 +44,13 @@ export const ModalContent: React.FC<ModalGeneralProps> = ({ children, className 
     'lg': 'w-10/12',
   }
 
-  return <div className={`absolute left-0 top-0 flex justify-center items-center w-full h-full`}>
-    <div className={`${className} relative z-50 rounded-lg p-4 max-h-[500px] overflow-auto ${sizes[size]}`}>
-      {children}
+  return (
+    <div className={`fixed left-0 top-0 flex justify-center items-center w-full h-full z-20`}>
+      <div className={`${className} relative rounded-lg p-4 max-h-[500px] overflow-auto ${sizes[size]}`}>
+        {children}
+      </div>
     </div>
-  </div>
+  )
 }
 
 export const ModalHeader: React.FC<ModalGeneralProps> = ({ children, className = '' })=> {

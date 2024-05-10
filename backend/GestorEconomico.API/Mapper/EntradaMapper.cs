@@ -14,14 +14,15 @@ namespace GestorEconomico.API.Mapper
                 FechaInicio = entrada.FechaInicio,
                 FechaFin = entrada.FechaFin,
                 Monto = entrada.Monto,
-                File = entrada.File,
-                Filename = entrada.Filename,
-                FileType = entrada.FileType,
+                File = entrada?.File,
+                Filename = entrada?.Filename,
+                FileType = entrada?.FileType,
                 Eliminada = entrada.Eliminada,
                 CategoriaId = entrada.CategoriaId,
                 CuentaId = entrada.CuentaId,
-                CuentaNombre = entrada?.Cuenta?.Descripcion,
-                CategoriaNombre = entrada?.Categoria.Nombre,
+                CuentaNombre = entrada?.Cuenta?.Titulo,
+                CategoriaNombre = entrada?.Categoria?.Nombre,
+                CategoriaColor = entrada?.Categoria?.Color
             };
         }
     
@@ -56,6 +57,25 @@ namespace GestorEconomico.API.Mapper
             entradaUpdated.EntradaId = dto.EntradaId;
             return entradaUpdated;
         }
+     
+        public Entrada Map(Entrada result, EntradaUpdateDTO dto)
+        {
+            var (archivoBinario, fileType, filename) = ConvertFormFile
+                .FormFileToBinary(dto.Comprobante, Const.MIME_TYPES);
+
+            result.Descripcion = dto.Descripcion;
+            result.CuentaId = dto.CuentaId;
+            result.CategoriaId = dto.CategoriaId;
+            result.FechaInicio = dto.FechaInicio;
+            result.Monto = dto.Monto;
+            result.TiposEntrada = dto.Monto > 0 ? TiposEntradas.Ingreso : TiposEntradas.Egreso;
+            result.File = archivoBinario;
+            result.Filename = filename;
+            result.FileType = fileType;
+
+            return result;
+        }
+
     }
 
 }

@@ -66,7 +66,7 @@ namespace GestorEconomico.API.Controllers
         [HttpPost]
         [Authorize]
         [ProducesResponseType(201, Type = typeof(EntradaDTO))]
-        [ProducesResponseType(409, Type = typeof(ProblemDetails))]
+        // [ProducesResponseType(409, Type = typeof(ProblemDetails))]
         public async Task<ActionResult<EntradaDTO>> PostEntrada([FromForm] EntradaCreateDTO nuevaEntradaDTO)
         {
             string? userId = GetCurrentUserId();
@@ -74,21 +74,29 @@ namespace GestorEconomico.API.Controllers
 
             var entradas = await _entradaRepository.GetEntradas(queryObject, userId);
             var entradaExistente = entradas.Results
-                .Where(c => c.Descripcion.Trim().ToUpper() == nuevaEntradaDTO.Descripcion.Trim().ToUpper())
+                .Where(e => 
+                    e.UsuarioID == userId &&
+                    e.Descripcion.Trim().ToUpper() == nuevaEntradaDTO.Descripcion.Trim().ToUpper()
+                )
                 .FirstOrDefault();
 
+            List<(string, string)> errors = new(); 
+
             if(entradaExistente != null)  {
-                return StatusCode(409, HandleErrors.SetContext("Entrada existente") );
+                errors.Add(("", "Esta entrada ya fue creada"));
+                return HandleErrors.ErrorAPI("Conflict", errors, 409);
             }
 
             Entrada nuevaEntrada = _mapper.Map(nuevaEntradaDTO); 
-            nuevaEntrada.UsuarioID = userId!;
+            if(userId != null){
+                nuevaEntrada.UsuarioID = userId;
+            };
 
             bool createdResult = await _entradaRepository.CreateEntrada(nuevaEntrada);
 
             if(!createdResult){
-                ModelState.AddModelError("", "Algo salio mal guardando la entrada");
-                return StatusCode(500, ModelState);
+                errors.Add(("", "Lo sentimos, no se pudo guardar la entrada"));
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
             EntradaDTO entradaDTO = _mapper.Map(nuevaEntrada);
@@ -101,36 +109,52 @@ namespace GestorEconomico.API.Controllers
         [HttpPut("{id}")]
         [Authorize]
         [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutCategoria(int id, [FromForm] EntradaUpdateDTO entradaUpdateDTO)
         {
-            ProblemDetails notFound = new () {
-                Title = "No se encontro esa entrada"
-            };
+            List<(string, string)> errors = new(); 
+            string? userId = GetCurrentUserId();
             
-            if (id != entradaUpdateDTO.EntradaId) {
-                return BadRequest(notFound);
+            if (id != entradaUpdateDTO.EntradaId || string.IsNullOrEmpty(userId)) {
+                errors.Add(("", "Algo salio mal, no se encontro la entrada"));
+                return HandleErrors.ErrorAPI("Bad Request", errors, 400);
             }
 
-            bool entradaExistente = await _entradaRepository.ExistEntrada(id);
-            if (!entradaExistente) {
-                return NotFound(notFound);
+            Entrada? entradaEncontrada = await _entradaRepository.GetEntradaById(id);
+            if (entradaEncontrada == null || entradaEncontrada?.UsuarioID != userId) {
+                errors.Add(("", "No se encontro la entrada"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
             }
   
             // SaveFile fileHelper = new ();
             // string[] mimetypes = new string[]{ "image/jpeg", "image/png", "image/tiff", "application/pdf" , "application/zip", "text/plain", "text/csv" };
             // Entrada entradaFile = fileHelper.FillFile(entradaUpdateDTO.Comprobante, new Entrada(), mimetypes);
             
-            Entrada entradaUpdated = _mapper.Map(entradaUpdateDTO);
+            var entradas = await _entradaRepository.GetEntradas(new QueryObject(), userId!);
+            
+            bool yaExiste = entradas.Results.Any(e => 
+                e.Descripcion.Trim().ToLower() == entradaUpdateDTO.Descripcion.Trim().ToLower() &&
+                e.FechaInicio == entradaUpdateDTO.FechaInicio &&
+                e.EntradaId != id
+            );
 
+            if(yaExiste)  {
+                errors.Add(("", "La entrada ya existe"));
+                return HandleErrors.ErrorAPI("Conflict", errors, 409);
+            }
+    
+            Entrada entradaUpdated = _mapper.Map(entradaEncontrada, entradaUpdateDTO);
+            // entradaUpdated.UsuarioID = userId;
+            
             bool updatedResult = await _entradaRepository.UpdateEntrada(entradaUpdated);
             if(!updatedResult){
-                ModelState.AddModelError("", "Algo salio mal actualizando la entrada");
-                return StatusCode(500, ModelState);
+                errors.Add(("", "Algo salio mal vuelva a intentarlo en un rato"));
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
-            return NoContent();
+            var dtoResult = _mapper.Map(entradaUpdated);
+            return Ok(dtoResult);
         }
      
 
@@ -141,16 +165,21 @@ namespace GestorEconomico.API.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteCategoria(int id)
         {
+            List<(string, string)> errors = new(); 
+
             Entrada? entrada = await _entradaRepository.GetEntradaById(id);
             if (entrada == null) {
-                return NotFound(HandleErrors.SetContext("No se encontro esa entrada"));
+                // return NotFound(HandleErrors.SetContext("No se encontro esa entrada"));
+                errors.Add(("", "No se encontro esa entrada"));
+                return HandleErrors.ErrorAPI("Not Found", errors, 404);
             }
 
             bool deletedResult = await _entradaRepository.DeleteEntrada(entrada);
            
             if(!deletedResult){
-                ModelState.AddModelError("", "Algo salio mal eliminando la entrada");
-                return StatusCode(500, ModelState);
+                // ModelState.AddModelError("", "Algo salio mal eliminando la entrada");
+                errors.Add(("", "Algo salio mal eliminando la entrada"));
+                return HandleErrors.ErrorAPI("Internal Server Error", errors, 500);
             }
 
             return NoContent();

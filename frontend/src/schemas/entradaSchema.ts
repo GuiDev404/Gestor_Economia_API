@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { TiposEntradas } from "../types.d";
 
 export const entradaFormSchema = z.object({
-  id: z
+  entradaId: z
     .string()
     .default(''),
   descripcion: z
@@ -15,7 +14,11 @@ export const entradaFormSchema = z.object({
     .date({ 
       required_error: 'Ingrese la fecha de ocurrencia de la entrada',
       invalid_type_error: 'Ingrese una fecha valida',
-      coerce: true
+      // coerce: true
+    })
+    .or(z.string())
+    .refine(datetime=> {
+      return new Date(datetime)
     }),
   categoriaId: z
     .string({ 
@@ -42,8 +45,7 @@ export const entradaFormSchema = z.object({
         ]
 
         const firstFile = filelist.item(0)
-        console.log(firstFile, firstFile !== null, firstFile?.type);
-
+ 
         if(firstFile !== null){
           return MIME_TYPES.includes(firstFile.type)
         } 
@@ -53,9 +55,17 @@ export const entradaFormSchema = z.object({
 
       return true
     }, { message: 'Seleccione una imagen valida' })
+    .transform((filelist: FileList)=> {
+      if(filelist.length > 0){
+        return filelist[0]
+      }
+    })
     .optional()
     .or(z.null())
     // .refine((file) => file.size < MAX_FILE_SIZE, "Max size is 5MB.")
 });
 
 export type EntradaFormSchemaType = z.infer<typeof entradaFormSchema>;
+ 
+export type KeysEntradaFormSchema = keyof EntradaFormSchemaType
+export type ErrorKeysEntradaFormSchema = keyof EntradaFormSchemaType | 'root' | `root.${string}`

@@ -1,19 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllEntradas, newEntrada, removeEntrada, updateEntrada } from "../services/entradas";
-import { Cuenta, Entrada } from "../types";
+import { Entrada, EntradasResponse } from "../types";
 import toast from "react-hot-toast";
 import axios from "axios";
-
-const ENTRADAS_QUERY_KEY = 'entradas';
 
 type ParamsTypes = {
   dateInitFormatted: string
   dateEndFormatted: string
 }
 
+// function isEntradaArray(object: unknown): object is Entrada[] {
+//   return Array.isArray(object) && object.every(item => isEntrada(item));
+// }
+
+function isEntrada(object: unknown): object is Entrada {
+  return typeof object === 'object' && object !== null && 'entradaId' in object && 'descripcion' in object;
+}
+
 const useEntradas = ({ dateInitFormatted, dateEndFormatted }: ParamsTypes) => {
+  const ENTRADAS_QUERY_KEY = ['entradas', `${dateInitFormatted}-${dateEndFormatted}`]
+
   const { data: entradas, isPending, isError } = useQuery({
-    queryKey: [ENTRADAS_QUERY_KEY, `${dateInitFormatted}-${dateEndFormatted}`],
+    queryKey: ENTRADAS_QUERY_KEY,
     queryFn: ()=> getAllEntradas({ 
       dateInit: dateInitFormatted,
       dateEnd: dateEndFormatted,
@@ -21,26 +29,31 @@ const useEntradas = ({ dateInitFormatted, dateEndFormatted }: ParamsTypes) => {
       sortBy: 'FechaInicio'
     }),
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    refetchOnReconnect: true,
   })
 
   const queryClient = useQueryClient()
 
-  const createCuenta = useMutation({
+  const createEntrada = useMutation({
     mutationFn: newEntrada,
     onSuccess: (response)=> {
-      const entradasEnCache: Entrada[] | undefined = queryClient.getQueryData([ENTRADAS_QUERY_KEY]);
-
-      if(entradasEnCache !== undefined){
-        const cacheUpdated = entradasEnCache.concat(response.data as Entrada)
+      const entradasEnCache: EntradasResponse | undefined = queryClient.getQueryData(ENTRADAS_QUERY_KEY);
         
-        queryClient.setQueryData([ENTRADAS_QUERY_KEY], cacheUpdated)
-        toast.success('Cuenta agregada correctamente!')
+      if(entradasEnCache !== undefined && isEntrada(response.data)){
+        const cacheUpdated = { 
+          ...entradasEnCache,
+          results: entradasEnCache.results
+            .concat(response.data)
+            .sort((a, b) => new Date(b.fechaInicio).getTime() - new Date(a.fechaInicio).getTime())
+          
+        }
+        
+        queryClient.setQueryData(ENTRADAS_QUERY_KEY, cacheUpdated)
+        toast.success('Entrada agregada correctamente!')
       }
     },
     // onError: (error: Error | AxiosError)=> {
-      // console.log(error);
-  
+ 
       // if (axios.isAxiosError(error))  {
       //     setTimeout(()=> {
       //       createCuenta.reset();
@@ -53,15 +66,19 @@ const useEntradas = ({ dateInitFormatted, dateEndFormatted }: ParamsTypes) => {
   const updateMutation = useMutation({
     mutationFn: updateEntrada,
     onSuccess: (response)=> {
-      const categoriasEnCache: Cuenta[] | undefined = queryClient.getQueryData([ENTRADAS_QUERY_KEY]);
+      console.log({ response: response.data });
+      const entradasResponse: EntradasResponse | undefined = queryClient.getQueryData(ENTRADAS_QUERY_KEY);
 
-      if(categoriasEnCache !== undefined){
-        const cacheUpdated = categoriasEnCache.map(categoria=> (
-          categoria.cuentaId === response.data.cuentaId ? response.data : categoria
-        ));
+      if(entradasResponse !== undefined){
+        const entradasUpdated = entradasResponse.results
+          .map(e=> e.entradaId === response.data.entradaId ? response.data : e)
+          .sort((a, b) => new Date(b.fechaInicio).getTime() - new Date(a.fechaInicio).getTime());
+        
+        const cacheUpdated: EntradasResponse = { ...entradasResponse, results: entradasUpdated } 
 
-        queryClient.setQueryData([ENTRADAS_QUERY_KEY], cacheUpdated)
-        toast.success('Cuenta actualizada correctamente!')
+
+        queryClient.setQueryData(ENTRADAS_QUERY_KEY, cacheUpdated)
+        toast.success('Entrada actualizada correctamente!')
       }
 
     },
@@ -77,30 +94,32 @@ const useEntradas = ({ dateInitFormatted, dateEndFormatted }: ParamsTypes) => {
     // }
   })
 
-  const deleteCuenta = useMutation({
+  const deleteEntrada = useMutation({
     mutationFn: removeEntrada,
-    onSuccess: (response, variables)=> {
-      // console.log('delete categoria: ',{ response, variables });
-      const entradasEnCache: Entrada[] | undefined = queryClient.getQueryData([ENTRADAS_QUERY_KEY]);
+    onSuccess: (response, entradaId)=> {
 
-      if(entradasEnCache !== undefined){
-        const cuentaId = parseInt(variables, 10);
-        const cacheUpdated = entradasEnCache.map(c=> {
-          return c.cuentaId === cuentaId ? ({ ...c, eliminada: !c.eliminada }) : c
-        })
+      if(entradas !== undefined){
+        const cacheUpdated = { 
+          ...entradas,
+          results: entradas.results
+            .map(e=> e.entradaId.toString() === entradaId ? ({ ...e, eliminada: !e.eliminada }) : e)
+            // .sort((a, b) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime())
+        }
+
+        queryClient.setQueryData(ENTRADAS_QUERY_KEY, cacheUpdated);
         
-        const entrada: Entrada | undefined = cacheUpdated.find(c=> c.cuentaId == cuentaId);
-        queryClient.setQueryData([ENTRADAS_QUERY_KEY], cacheUpdated);
+        const entrada: Entrada | undefined = cacheUpdated.results
+          .find(c=> c.entradaId.toString() == entradaId);
 
-        toast.success(`Cuenta ${entrada?.eliminada ? 'deshabilitada' : 'recuperada'} correctamente!`)
+        toast.success(`Entrada ${entrada?.eliminada ? 'deshabilitada' : 'recuperada'} correctamente!`)
       }
     },
     onError: (error)=> {
       console.log(error);
       if (axios.isAxiosError(error) )  {
-        toast.error(error.response?.data?.errors[""] ?? 'Algo salio mal, no se pudo eliminar la categoria!')
+        toast.error(error.response?.data?.errors[""] ?? 'Algo salio mal, no se pudo eliminar la entrada!')
       } else {
-        toast.error('Algo salio mal, no se pudo eliminar la categoria!')
+        toast.error('Algo salio mal, no se pudo eliminar la entrada!')
       }
     }
   })
@@ -109,9 +128,9 @@ const useEntradas = ({ dateInitFormatted, dateEndFormatted }: ParamsTypes) => {
     entradas,
     isPendingEntradas: isPending,
     isErrorEntradas: isError,
-    createCuenta,
-    deleteCuenta,
-    updateCuenta: updateMutation
+    createEntrada,
+    deleteEntrada,
+    updateEntrada: updateMutation
   }
 }
 

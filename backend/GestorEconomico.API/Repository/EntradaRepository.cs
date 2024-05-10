@@ -37,6 +37,7 @@ namespace GestorEconomico.API.Repository
         public async Task<Entrada?> GetEntradaById(int id)
         {
             return await _context.Entradas
+                .Include(e=> e.Cuenta)
                 .Include(e=> e.Categoria)
                 .FirstOrDefaultAsync(e=> e.EntradaId == id);
         }
@@ -89,10 +90,10 @@ namespace GestorEconomico.API.Repository
             }
         }
 
-        public async Task<bool> UpdateEntrada(Entrada entradaActualizada)
+        public Task<bool> UpdateEntrada(Entrada entradaActualizada)
         {
-            _context.Entradas.Update(entradaActualizada);
-            return await Save();
+            _context.Update(entradaActualizada);
+            return Save();
         }
     }
 }
