@@ -24,6 +24,7 @@ export interface Entrada {
   categoriaId:     string;
   usuarioID:     string;
   categoriaNombre: string;
+  categoriaEmoji: string;
   categoriaColor:  string;
   cuentaId:        string;
   cuentaNombre:    string;

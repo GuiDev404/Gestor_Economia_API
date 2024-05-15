@@ -9,6 +9,7 @@ import PublicRoute from './PublicRoute.tsx';
 import Entradas from '../pages/Entradas.tsx';
 import Cuentas from '../pages/Cuentas.tsx';
 import Categorias from '../pages/Categorias.tsx';
+import Informes from '../pages/Informes.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <Entradas />,
+      },
+      {
+        path: "informes",
+        element: <Informes />,
       },
       {
         path: "cuentas",

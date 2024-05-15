@@ -89,9 +89,23 @@ const Entrada: React.FC<EntradaProps> = ({
         {entrada[1].map(entrada=> {
 
           return (
-            <article key={entrada.entradaId} className="flex justify-between items-center border-base-300 border-y p-2">
-              <div className="my-2 min-w-36">
-                <h3 className="text-base font-semibold capitalize">{entrada.descripcion}</h3>
+            <article key={entrada.entradaId} className="flex justify-between items-center border-b border-dashed border-neutral-500 p-2 last:border-b-0">
+              <div className="my-2">
+                <h3 className="flex w-full gap-x-4 items-center text-base mb-2">
+                  <span className="capitalize font-semibold"> {entrada.descripcion} </span>
+
+                  {entrada.file && (
+                    <a
+                      className="flex text-xs text-zinc-700 hover:text-zinc-900 items-center gap-1 w-fit"
+                      href={`data:${entrada.fileType};base64, ${entrada.file}`}
+                      download={entrada.filename}
+                    >
+                      <FileIcon width={14} height={14} />
+                      <span> {entrada.filename.toLowerCase()} </span>
+                    </a>
+                  )}  
+                </h3>
+                
                 <p className="text-lg font-bold flex items-center gap-2">
                     $ {entrada.monto} <span className={`text-[.7rem] uppercase text-neutral opacity-60`}>
                       / {entrada.cuentaNombre}

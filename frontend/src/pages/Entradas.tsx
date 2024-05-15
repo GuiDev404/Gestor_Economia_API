@@ -16,37 +16,11 @@ import { AxiosError, isAxiosError } from "axios";
 import toast, { ErrorIcon } from "react-hot-toast";
 import StatCard from "../components/StatCard";
 import { ArrowDownIcon, ArrowRightIcon, ArrowUpIcon, MaximizeIcon, MinimizeIcon } from "../components/Icons";
-
-const formatZeroInDate = (date: number)=> date < 10 ? `0${date}` : date
+import { dateBetween, defaultYearMonth } from "../utils/date";
 
 type ResumenKeys = 'total' | 'cantidad'
 type ResumenType = Record<ResumenKeys, number>
 
-function dateBetween (dateSelected: string){
-  const [year, month] = dateSelected.split('-').map(Number);
-  
-  const dateInit = new Date(year, month - 1, 1);
-  const dateEnd = new Date(year, month, 0);
-
-  const yearInit = dateInit.getFullYear()
-  const monthInit = formatZeroInDate(dateInit.getMonth() + 1)
-  const monthDayInit = formatZeroInDate(dateInit.getDate())
-
-  const dateInitFormatted = `${yearInit}-${monthInit}-${monthDayInit}`
-
-  const yearEnd = dateEnd.getFullYear()
-  const monthEnd = formatZeroInDate(dateEnd.getMonth() + 1)
-  const monthDayEnd = formatZeroInDate(dateEnd.getDate())
-
-  const dateEndFormatted = `${yearEnd}-${monthEnd}-${monthDayEnd}`
-
-  return [ dateInitFormatted, dateEndFormatted ]
-}
-
-const defaultYearMonth = ()=> {
-  const currentDate = new Date()
-  return `${currentDate.getFullYear()}-${formatZeroInDate(currentDate.getMonth() + 1)}`
-}
 
 const Entradas = () => {
   const [ dateSelected, setDateSelected ] = useState(defaultYearMonth())

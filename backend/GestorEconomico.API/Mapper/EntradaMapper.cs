@@ -22,7 +22,8 @@ namespace GestorEconomico.API.Mapper
                 CuentaId = entrada.CuentaId,
                 CuentaNombre = entrada?.Cuenta?.Titulo,
                 CategoriaNombre = entrada?.Categoria?.Nombre,
-                CategoriaColor = entrada?.Categoria?.Color
+                CategoriaColor = entrada?.Categoria?.Color,
+                CategoriaEmoji = entrada?.Categoria?.Emoji
             };
         }
     

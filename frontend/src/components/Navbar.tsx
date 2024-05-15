@@ -23,7 +23,7 @@ const Navbar = ({ items = [] }: NavbarProps) => {
 
     <div className='flex md:items-center flex-col md:flex-row gap-2'>
       <Link to='/' className="text-lg font-semibold me-2">BalanceApp</Link>
-      {items.map((navItem)=> <Link to={navItem.url}>{navItem.label}</Link>)}
+      {items.map((navItem)=> <Link key={navItem.label} to={navItem.url}>{navItem.label}</Link>)}
     </div>
 
     <div className="flex md:items-center flex-col md:flex-row gap-2 justify-end grow md:mt-0">
@@ -35,7 +35,7 @@ const Navbar = ({ items = [] }: NavbarProps) => {
   </>
 
   return (
-    <nav className='navbar'>
+    <nav className='navbar  px-0'>
       {/* mobile */}
       <div className="drawer md:hidden z-50">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />

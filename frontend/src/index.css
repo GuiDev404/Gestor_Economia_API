@@ -20,3 +20,7 @@
   border: none;
   border-radius: 20%;
 }
+
+.progress-bar::-webkit-progress-value {
+  background-color: var(--progress-color, #151515);
+}

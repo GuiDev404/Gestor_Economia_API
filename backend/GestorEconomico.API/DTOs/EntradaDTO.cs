@@ -16,6 +16,7 @@ namespace GestorEconomico.API.DTOs
         public int CategoriaId { get; set; }
         public string? CategoriaNombre { get; set; }
         public string? CategoriaColor { get; set; }
+        public string? CategoriaEmoji { get; set; }
         public int CuentaId { get; set; }
         public string? CuentaNombre { get; set; }
         public byte[]? File { get; set; }

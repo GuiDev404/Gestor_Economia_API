@@ -5,7 +5,8 @@ import Navbar from '../components/Navbar';
 const navItems = [
   { url: '/dashboard', label: 'Entradas' },
   { url: '/dashboard/cuentas', label: 'Cuentas' },
-  { url: '/dashboard/categorias', label: 'Categorias' }
+  { url: '/dashboard/categorias', label: 'Categorias' },
+  { url: '/dashboard/informes', label: 'Informes' }
 ]
 
 const DashboardLayout = () => {
