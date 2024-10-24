@@ -97,7 +97,11 @@ namespace GestorEconomico.API.Controllers
             var categorias = await _categoriaRepository.GetCategorias(queryParams, userId!);
             
             Categoria? categoriaExistente = categorias
-                .Where(c => c.CategoriaId != id && c.UsuarioID == userId && c.Nombre.Trim().ToUpper() == categoriaDTO.Nombre.Trim().ToUpper())
+                .Where(c => 
+                    c.CategoriaId != id &&
+                    c.UsuarioID == userId &&
+                    c.Nombre.Trim().ToUpper() == categoriaDTO.Nombre.Trim().ToUpper()
+                )
                 .FirstOrDefault();
 
             if(categoriaExistente != null)  {

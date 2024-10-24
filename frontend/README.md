@@ -13,4 +13,32 @@
     - agregar boton de detalle o de solo ver archivo adjunto si existiese
 
 - [ ] Seguir probando hasta arreglar lo del login
-- [ ] Probar/Revisar por si falta algo mas
+- [ ] Sigue mostrando mal las entradas al editar o crear una
+- [ ] No permite actualizar las categorias existentes de admin, error 409
+
+
+### SNIPPETS NO USADOS/ALTERNATIVOS
+
+```js
+  : categoriasAgrupadasPorTipo?.map((tipoCategoria)=> {
+    const [tipo, categorias] = tipoCategoria;
+
+    return <>
+      <optgroup label={tipo === '0' ? 'Egresos' : 'Ingresos'}>
+        {
+          categorias.map((egreso: Categoria) => {
+            if(!egreso.eliminada) {
+              return (
+                <option key={egreso.categoriaId} value={egreso.categoriaId}>
+                  {egreso.nombre}
+                </option>
+              )
+            }
+          })
+        }
+      </optgroup>
+    </>
+    
+    }
+  )
+```

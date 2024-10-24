@@ -27,7 +27,7 @@ const Navbar = ({ items = [] }: NavbarProps) => {
     </div>
 
     <div className="flex md:items-center flex-col md:flex-row gap-2 justify-end grow md:mt-0">
-      <strong> {user?.email} </strong>
+      {user?.email && <strong> {user.email.split('@')[0]} </strong>}
       <button className='btn btn-sm btn-neutral' onClick={handleLogout}>
         Cerrar sesion
       </button>

@@ -148,6 +148,7 @@ const Informes = () => {
           <ReactECharts option={ingresosOptions} />
         
           <List
+            emptyStateMsg="No hay estadisticas disponibles"
             items={dataIngresos ?? []}
             selectKey={item=> item.id}
             render={(item)=> {
@@ -184,6 +185,8 @@ const Informes = () => {
           <ReactECharts option={egresosOptions} />
 
           <List
+            emptyStateMsg="No hay estadisticas disponibles"
+
             items={dataEgresos ?? []}
             selectKey={item=> item.id}
             render={(item)=> {

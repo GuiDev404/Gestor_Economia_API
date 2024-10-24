@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 type ChildrenProp = React.ReactNode | React.ReactElement | React.ReactElement[];
 
@@ -18,22 +19,38 @@ interface ModalGeneralProps {
 
 export const ModalContext = createContext<ContextValue>(undefined);
 
-const Modal: React.FC<ModalProviderProps> = ({ children, size, isOpen = false, onClose })=> {
- 
-  useEffect(()=> {
-    document.body.style.overflowY = isOpen ? 'hidden' : 'scroll'
-  }, [isOpen])
+const Modal: React.FC<ModalProviderProps> = ({
+  children,
+  size,
+  isOpen = false,
+  onClose,
+}) => {
+  useEffect(() => {
+    document.body.style.overflowY = isOpen ? "hidden" : "scroll";
+  }, [isOpen]);
 
-  return <ModalContext.Provider value={{ size, isOpen, onClose }}>
-    {isOpen ? children : ''}
-  </ModalContext.Provider>
-}
+  const classNameVisibility = !isOpen ? "hidden" : "flex justify-center items-center"
 
-export const ModalOverlay = ()=> {
-  const { onClose } = useContext(ModalContext)!;
+  return (
+    <ModalContext.Provider value={{ size, isOpen, onClose }}>
+      {isOpen
+        ? createPortal(
+            <div className={`${classNameVisibility} fixed left-0 top-0 w-full h-full z-20 bg-black bg-opacity-60`} onClick={onClose}>
+              {children}
+            </div>,
+            document.body
+          )
+        : ""
+      }
+    </ModalContext.Provider>
+  );
+};
 
-  return <div onClick={onClose} className='fixed z-10 left-0 top-0 w-full h-full bg-black bg-opacity-50'></div>
-}
+// export const ModalOverlay = ()=> {
+//   const { onClose } = useContext(ModalContext)!;
+
+//   return <div onClick={onClose} className='fixed z-10 left-0 top-0 w-full h-full bg-black bg-opacity-50'></div>
+// }
 
 export const ModalContent: React.FC<ModalGeneralProps> = ({ children, className })=> {
   const { size } = useContext(ModalContext)!;
@@ -45,11 +62,11 @@ export const ModalContent: React.FC<ModalGeneralProps> = ({ children, className 
   }
 
   return (
-    <div className={`fixed left-0 top-0 flex justify-center items-center w-full h-full z-20`}>
-      <div className={`${className} relative rounded-lg p-4 max-h-[500px] overflow-auto ${sizes[size]}`}>
+    // <div className={`fixed left-0 top-0 flex justify-center items-center w-full h-full z-20`}>
+      <div onClick={e=> e.stopPropagation()} className={`${className} relative rounded-lg p-4 max-h-[500px] overflow-auto ${sizes[size]} z-40`}>
         {children}
       </div>
-    </div>
+    // </div>
   )
 }
 

@@ -106,7 +106,7 @@ const Entrada: React.FC<EntradaProps> = ({
                   )}  
                 </h3>
                 
-                <p className="text-lg font-bold flex items-center gap-2">
+                <p className={`text-lg font-bold flex items-center gap-2 ${entrada.monto > 0 ? 'text-green-500' : 'text-red-500'}`}>
                     $ {entrada.monto} <span className={`text-[.7rem] uppercase text-neutral opacity-60`}>
                       / {entrada.cuentaNombre}
                     </span>

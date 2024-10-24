@@ -1,4 +1,4 @@
-import Modal, { ModalBody, ModalContent, ModalOverlay, ModalHeader, ButtonCloseModal } from "../components/Modal"
+import Modal, { ModalBody, ModalContent, ModalHeader, ButtonCloseModal } from "../components/Modal"
 import useDisclosure from "../hooks/useDisclousure"
 import { useState } from "react";
 import EntradaItem from "../components/Entrada";
@@ -21,7 +21,6 @@ import { dateBetween, defaultYearMonth } from "../utils/date";
 type ResumenKeys = 'total' | 'cantidad'
 type ResumenType = Record<ResumenKeys, number>
 
-
 const Entradas = () => {
   const [ dateSelected, setDateSelected ] = useState(defaultYearMonth())
   const [ modeEdit, setModeEdit ] = useState(false);
@@ -34,7 +33,6 @@ const Entradas = () => {
 
   const [ groupedByDay, setGroupedByDay ] = useState(false)
 
-
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset, setError } = useForm<EntradaFormSchemaType & { ""?: string }>({
     resolver: zodResolver(entradaFormSchema) 
   })
@@ -46,7 +44,6 @@ const Entradas = () => {
     }
   });
 
-
   const { categorias, isPending: isPendingCategorias } = useCategorias()
   const { cuentas, isPendingCuentas } = useCuentas()
 
@@ -54,12 +51,6 @@ const Entradas = () => {
     if(e.currentTarget.value) setDateSelected(e.currentTarget.value)
   }
   
-  // let categoriasAgrupadasPorTipo = isPendingCategorias 
-  //   ? {}
-  //   : Object.groupBy(categorias, ({ tipoEntrada }: { tipoEntrada: TiposEntradas }) => tipoEntrada);
-    
-  // categoriasAgrupadasPorTipo = Object.entries(categoriasAgrupadasPorTipo);
-
   const onError = (error: Error | AxiosError) => {
     if(isAxiosError(error)){
 
@@ -90,8 +81,6 @@ const Entradas = () => {
   const esEgreso = montoActual < 0;
 
 
-  console.log(entradas?.results);
- 
   function onSubmit (data: EntradaFormSchemaType){
   
     if(!data.entradaId){
@@ -125,7 +114,7 @@ const Entradas = () => {
 
   }
 
-      
+
   const handleDelete = (id: string)=> ()=> deleteEntrada.mutate(id)
   
   const handleEditMode = (id: string)=>{
@@ -199,7 +188,7 @@ const Entradas = () => {
   return (
     <div className="">
       <Modal onClose={onClose} isOpen={isOpen} size="sm">
-        <ModalOverlay />
+
         <ModalContent className="bg-neutral text-white">
           <ModalHeader className="flex justify-between items-center">
             <h1 className="text-xl font-bold"> {modeEdit ? 'Editar entrada' : 'Nueva entrada'} </h1>
@@ -302,27 +291,6 @@ const Entradas = () => {
                             )
                           }
                         })
-                      // : categoriasAgrupadasPorTipo?.map((tipoCategoria)=> {
-                      //   const [tipo, categorias] = tipoCategoria;
-
-                      //   return <>
-                      //     <optgroup label={tipo === '0' ? 'Egresos' : 'Ingresos'}>
-                      //       {
-                      //         categorias.map((egreso: Categoria) => {
-                      //           if(!egreso.eliminada) {
-                      //             return (
-                      //               <option key={egreso.categoriaId} value={egreso.categoriaId}>
-                      //                 {egreso.nombre}
-                      //               </option>
-                      //             )
-                      //           }
-                      //         })
-                      //       }
-                      //     </optgroup>
-                      //   </>
-                       
-                      //   }
-                      // )
                     }
                   </Select>
                 </div>
@@ -418,31 +386,15 @@ const Entradas = () => {
       <section className="flex flex-col mb-4">
         
         {isPendingEntradas
-          ? 'Obteniendo entradas...'
+          ? ''
           : <List
               className="flex flex-col gap-y-2"
               classNameItem='group'
               emptyStateMsg="No hay entradas para este mes. Agregue alguna!"
-              selectKey={entrada=> Array.isArray(entrada) ? entrada[0] : entrada.entradaId}
+              selectKey={entrada=> typeof entrada === 'string' ? entrada : entrada.entradaId}
               items={formatEntradas(entradas?.results)} 
               render={entrada=> <EntradaItem
                 entrada={entrada}
-                // categoriaColor={entrada.categoriaColor}
-                // categoriaNombre={entrada.categoriaNombre}
-                // categoriaId={entrada.categoriaId}
-                // monto={entrada.monto}
-                // fechaInicio={entrada.fechaInicio}
-                // entradaId={entrada.entradaId}
-                // file={entrada.file}
-                // filename={entrada.filename}
-                // fileType={entrada.fileType}
-                // descripcion={entrada.descripcion}
-                // cuentaId={entrada.cuentaId}
-                // cuentaNombre={entrada.cuentaNombre}
-                // cuentaColor={entrada.cuentaColor}
-                // eliminada={entrada.eliminada}
-                // tiposEntrada={entrada.tiposEntrada}
-                // usuarioID={entrada.usuarioID}
                 handleDelete={handleDelete}
                 handleEdit={handleEditMode}
               />}

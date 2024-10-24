@@ -1,16 +1,20 @@
+import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { AxiosError, isAxiosError } from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+
 import List from "../components/List";
 import Cuenta from "../components/Cuenta";
-import useCuentas from "../hooks/useCuentas";
-import Modal, { ButtonCloseModal, ModalBody, ModalContent, ModalHeader, ModalOverlay } from "../components/Modal";
-import useDisclosure from "../hooks/useDisclousure";
+import Modal, { ButtonCloseModal, ModalBody, ModalContent, ModalHeader } from "../components/Modal";
 import Input from "../components/Input";
-import { SubmitHandler, useForm } from "react-hook-form";
 import InputEmojiPicker from "../components/InputEmojiPicker";
-import { useEffect, useState } from "react";
-import { AxiosError, isAxiosError } from "axios";
-import toast, { ErrorIcon } from "react-hot-toast";
+import Alert from "../components/Alert";
+
+import useCuentas from "../hooks/useCuentas";
+import useDisclosure from "../hooks/useDisclousure";
+
 import { CuentaFormSchemaType, cuentaFormSchema, ErrorKeysFormSchema, KeysFormSchema } from "../schemas/cuentaSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const Cuentas = () => {
   const { cuentas, isPendingCuentas, createCuenta, deleteCuenta, updateMutation } = useCuentas()
@@ -119,7 +123,7 @@ const Cuentas = () => {
   return (
     <div>
        <Modal onClose={onClose} isOpen={isOpen} size="sm">
-        <ModalOverlay />
+
         <ModalContent className="bg-neutral text-white">
           <ModalHeader className="flex justify-between items-center">
             <h1 className="text-xl font-bold"> {modeEdit ? 'Editar cuenta' : 'Nueva cuenta'} </h1>
@@ -127,12 +131,9 @@ const Cuentas = () => {
           </ModalHeader>
           <ModalBody>
             <form onSubmit={handleSubmit(onSubmit)}> 
-             {errors[""]?.type === 'general' && (
-               <div role="alert" className="alert alert-error text-white my-4">
-                <ErrorIcon />
-                <span>{errors[""]?.message?.toString()}</span>
-              </div>
-             )}
+              {errors[""]?.type === 'general' && 
+                <Alert type="error" message={errors[""]?.message?.toString() ?? ''} />
+              }
 
               <input type="hidden"  {...register('id')} />
 
@@ -200,19 +201,20 @@ const Cuentas = () => {
 
         <button className="btn btn-sm btn-neutral" onClick={onOpen}>+</button>
       </header>
+
       <div className="flex flex-col">
         {isPendingCuentas ? (
           <div className="flex flex-col gap-2">
-            <div className="skeleton h-10 w-full"></div>
-            <div className="skeleton h-10 w-full"></div>
+            <div className="skeleton h-16 w-full"></div>
+            <div className="skeleton h-16 w-full"></div>
           </div>
         ) : (
           <List
             items={cuentas}
-            selectKey={cuenta=> cuenta.cuentaId}
+            selectKey={cuenta=> typeof cuenta === 'string' ? cuenta : cuenta.cuentaId}
             render={cuenta=> 
               <Cuenta 
-                {...cuenta}
+                cuenta={cuenta}
                 handleDelete={handleDelete}
                 handleEdit={handleModeEdit}
               />

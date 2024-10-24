@@ -39,10 +39,10 @@ namespace GestorEconomico.API.Data
         new ApplicationUser
         {
             Id = ADMIN_USER_ID,
-            UserName = "admin@gestor_economico.com",
-            NormalizedUserName = "ADMIN@GESTOR_ECONOMICO.COM",
-            Email = "admin@gestor_economico.com",
-            NormalizedEmail = "ADMIN@GESTOR_ECONOMICO.COM",
+            UserName = "admin@gestoreconomico.com",
+            NormalizedUserName = "ADMIN@GESTORECONOMICO.COM",
+            Email = "admin@gestoreconomico.com",
+            NormalizedEmail = "ADMIN@GESTORECONOMICO.COM",
             EmailConfirmed = false,
             PasswordHash = hasher.HashPassword(null, "gestor123456"),
             SecurityStamp = string.Empty

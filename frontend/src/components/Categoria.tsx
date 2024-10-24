@@ -1,22 +1,22 @@
 import { type Categoria } from "../types.d";
 import { DeleteIcon, DeleteOffIcon, EditIcon } from "./Icons";
 
-interface CategoriaProps extends Categoria {
+interface CategoriaProps {
+  categoria: Categoria | [string, Categoria[]]
   handleDelete: (id: string)=> ()=> void;
   handleEdit: (id: string | number) => () => void
 }
 
 const Categoria: React.FC<CategoriaProps> = ({
-  categoriaId,
-  color,
-  eliminada,
-  emoji,
-  nombre,
+  categoria,
   handleEdit,
   handleDelete
 }) => {
-  const bgEmoji = color.trim() ? color : "inherit";
 
+  if(Array.isArray(categoria)) return null
+
+  const { categoriaId, color, eliminada, emoji, nombre } = categoria; 
+  const bgEmoji = color.trim() ? color : "inherit";
   const disabledClassName = eliminada ? 'opacity-25 select-none' : ''
 
   return (

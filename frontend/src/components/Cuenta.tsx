@@ -2,24 +2,24 @@ import React from "react";
 import { type Cuenta } from "../types.d";
 import { DeleteIcon, DeleteOffIcon, EditIcon } from "./Icons";
 
-interface CuentaProps extends Cuenta {
+interface CuentaProps {
+  cuenta: Cuenta | [string, Cuenta[]],
   handleDelete: (id: string)=> ()=> void;
   handleEdit: (id: string | number) => () => void
 }
 
 const Cuenta: React.FC<CuentaProps> = ({
-  emoji,
-  color,
-  titulo,
-  descripcion,
-  eliminada,
+  cuenta,
   handleDelete,
   handleEdit,
-  cuentaId,
 }) => {
+  if(Array.isArray(cuenta)) return null
+
+  const { emoji, color, titulo, descripcion, eliminada, cuentaId } = cuenta;
+
   const bgEmoji = color.trim() ? color : "inherit";
 
-  const disabledClassName = eliminada ? 'opacity-25 select-none' : ''
+  const disabledClassName = eliminada ? 'opacity-25 select-none' : '';
   
   return (
     <>
